@@ -1,10 +1,12 @@
-﻿using System.Data;
+﻿using System.Collections.Generic;
+using System.Data;
 
 namespace TimeTableManagementAPI.Repository
 {
-    public interface ICommonRepository
+    public interface ICommonRepository<TEntity> where TEntity : class
     {
-        DataSet GetAll(string table);
-        DataSet GetById(string table, int Id);
+        bool DeleteRecord(string table, int Id);
+        IEnumerable<TEntity> GetAll(string table);
+        IEnumerable<TEntity> GetById(string table, int Id);
     }
 }

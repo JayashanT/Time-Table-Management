@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using TimeTableAPI.Models;
 using TimeTableManagementAPI.Repository;
 using TimeTableManagementAPI.Services;
 
@@ -30,7 +31,7 @@ namespace TimeTableManagementAPI
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services.AddScoped<IUserServices, UserServices>();
-            services.AddScoped<ICommonRepository, CommonRepository>();
+            services.AddScoped<ICommonRepository<Users>, CommonRepository<Users>>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
