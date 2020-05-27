@@ -5,18 +5,19 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using TimeTableManagementAPI.Utility;
 
 namespace TimeTableManagementAPI.Repository
 {
     //public class CommonRepository<TEntity> : ICommonRepository where TEntity : class
     public class CommonRepository<TEntity> : ICommonRepository<TEntity> where TEntity :class
     {
-        string ConnectionInformation = "Server=localhost;Database=TimeTableDB;Trusted_Connection=True;MultipleActiveResultSets=true";
-        SqlConnection MainConnection;
-        public CommonRepository()
+        //string ConnectionInformation = "Server=localhost;Database=TimeTableDB;Trusted_Connection=True;MultipleActiveResultSets=true";
+        //SqlConnection MainConnection;
+        DBContext _dBContext;
+        public CommonRepository(DBContext dBContext)
         {
-            MainConnection = new SqlConnection(ConnectionInformation);
-            MainConnection.Open();
+            _dBContext = dBContext;
         }
 
         public IEnumerable<TEntity> GetAll(string table)
@@ -25,7 +26,7 @@ namespace TimeTableManagementAPI.Repository
             {
                 DataTable dt = new DataTable();
                 string MyCommand = "Select * from " + table;
-                SqlCommand myCommand = new SqlCommand(MyCommand, MainConnection);
+                SqlCommand myCommand = new SqlCommand(MyCommand, _dBContext.MainConnection);
                 SqlDataAdapter da = new SqlDataAdapter(myCommand);
                 //DataSet ds = new DataSet();
                 da.Fill(dt);
@@ -57,7 +58,7 @@ namespace TimeTableManagementAPI.Repository
             try {
                 DataTable dt = new DataTable();
                 string MyCommand = "Select * from " + table + " where Id=" + Id;
-                SqlCommand myCommand = new SqlCommand(MyCommand, MainConnection);
+                SqlCommand myCommand = new SqlCommand(MyCommand, _dBContext.MainConnection);
                 SqlDataAdapter da = new SqlDataAdapter(myCommand);
                 da.Fill(dt);
 
@@ -83,7 +84,7 @@ namespace TimeTableManagementAPI.Repository
         public bool DeleteRecord(string table,int Id)
         {
             string MyCommand = "Delete * from " + table + " where Id=" + Id;
-            SqlCommand myCommand = new SqlCommand(MyCommand, MainConnection);
+            SqlCommand myCommand = new SqlCommand(MyCommand, _dBContext.MainConnection);
             try
             {
                 var Result=myCommand.ExecuteNonQuery();

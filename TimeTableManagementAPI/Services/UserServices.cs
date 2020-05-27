@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+using TimeTableAPI.Models;
 
 namespace TimeTableManagementAPI.Services
 {
@@ -18,29 +19,48 @@ namespace TimeTableManagementAPI.Services
             MainConnection.Open();
         }
 
-        public bool Add(string Name,string Staff_Id,string Contact_No,string Password,int Role_Id)
+        public bool Add(Users user)
         {
-            string MyCommand = "INSERT INTO Users VALUES(" + Name + "," + Staff_Id + "," + Contact_No + "," + Password + "," + Role_Id + ")";
+            string InsertCommand = "INSERT INTO Users {Name,Staff_Id,Contact_No,Password,Role_Id} VALUES(@Name,@Staff_Id,@Contact_No,@Password,@Role_Id)";
             try
             {
-                SqlCommand myCommand = new SqlCommand(MyCommand, MainConnection);
-                myCommand.ExecuteNonQuery();
-                return true;
-            }catch(Exception e)
+                SqlCommand insertCommand = new SqlCommand(InsertCommand, MainConnection);
+                insertCommand.Parameters.AddWithValue("@Name", user.Name);
+                insertCommand.Parameters.AddWithValue("@Staff_Id", user.Staff_Id);
+                insertCommand.Parameters.AddWithValue("@Contact_No", user.Contact_No);
+                insertCommand.Parameters.AddWithValue("@Password", user.Password);
+                insertCommand.Parameters.AddWithValue("@Role_Id", user.Role_Id);
+
+                var result = insertCommand.ExecuteNonQuery();
+                if (result > 0)
+                    return true;
+                else
+                    return false;
+            }
+            catch (Exception e)
             {
                 Console.WriteLine(e.Message);
                 return false;
             }
         }
 
-        public bool UpdateUser(string Name, string Staff_Id, string Contact_No, string Password, int Role_Id)
+        public bool UpdateUser(Users user)
         {
-            string MyCommand = "INSERT INTO Users VALUES(" + Name + "," + Staff_Id + "," + Contact_No + "," + Password + "," + Role_Id + ")";
+            string InsertCommand = "UPDATE Users SET Name=@Name,Staff_Id=@Staff_Id,Contact_No=@Contact_No,Password=@Password,Role_Id=@Role_Id WHERE Id=" + user.Id;
             try
             {
-                SqlCommand myCommand = new SqlCommand(MyCommand, MainConnection);
-                myCommand.ExecuteNonQuery();
-                return true;
+                SqlCommand insertCommand = new SqlCommand(InsertCommand, MainConnection);
+                insertCommand.Parameters.AddWithValue("@Name", user.Name);
+                insertCommand.Parameters.AddWithValue("@Staff_Id", user.Staff_Id);
+                insertCommand.Parameters.AddWithValue("@Contact_No", user.Contact_No);
+                insertCommand.Parameters.AddWithValue("@Password", user.Password);
+                insertCommand.Parameters.AddWithValue("@Role_Id", user.Role_Id);
+
+                var result = insertCommand.ExecuteNonQuery();
+                if (result > 0)
+                    return true;
+                else
+                    return false;
             }
             catch (Exception e)
             {
