@@ -17,8 +17,8 @@ namespace TimeTableAPI.Controllers
     public class UserController:Controller
     {
         private IUserServices _userServices;
-        private ICommonRepository _userRepository;
-        public UserController(IUserServices userServices,ICommonRepository userRepository)
+        private ICommonRepository<Users> _userRepository;
+        public UserController(IUserServices userServices,ICommonRepository<Users> userRepository)
         {
             _userServices = userServices;
             _userRepository = userRepository;
