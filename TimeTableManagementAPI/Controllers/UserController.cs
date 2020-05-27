@@ -37,5 +37,17 @@ namespace TimeTableAPI.Controllers
             return Ok(Result);
         }
 
+        [HttpPost]
+        public IActionResult Add([FromBody]string value)
+        {
+            return null;
+        }
+
+        [HttpPut]
+        public IActionResult Update([FromBody]string value)
+        {
+            return null;
+        }
+
     }
 }
