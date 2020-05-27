@@ -12,12 +12,11 @@ namespace TimeTableManagementAPI.Repository
     //public class CommonRepository<TEntity> : ICommonRepository where TEntity : class
     public class CommonRepository<TEntity> : ICommonRepository<TEntity> where TEntity :class
     {
-        //string ConnectionInformation = "Server=localhost;Database=TimeTableDB;Trusted_Connection=True;MultipleActiveResultSets=true";
-        //SqlConnection MainConnection;
+
         DBContext _dBContext;
-        public CommonRepository(DBContext dBContext)
+        public CommonRepository()
         {
-            _dBContext = dBContext;
+            _dBContext = new DBContext();
         }
 
         public IEnumerable<TEntity> GetAll(string table)

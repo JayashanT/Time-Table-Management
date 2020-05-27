@@ -5,18 +5,19 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using TimeTableAPI.Models;
+using TimeTableManagementAPI.Utility;
 
 namespace TimeTableManagementAPI.Services
 {
     public class UserServices : IUserServices
     {
-        string ConnectionInformation = "Server=localhost;Database=TimeTableDB;Trusted_Connection=True;MultipleActiveResultSets=true";
-        SqlConnection MainConnection;
+        //string ConnectionInformation = "Server=localhost;Database=TimeTableDB;Trusted_Connection=True;MultipleActiveResultSets=true";
+        //SqlConnection MainConnection;
 
+        DBContext _dBContext;
         public UserServices()
         {
-            MainConnection = new SqlConnection(ConnectionInformation);
-            MainConnection.Open();
+            _dBContext = new DBContext();
         }
 
         public bool Add(Users user)
@@ -24,7 +25,7 @@ namespace TimeTableManagementAPI.Services
             string InsertCommand = "INSERT INTO Users {Name,Staff_Id,Contact_No,Password,Role_Id} VALUES(@Name,@Staff_Id,@Contact_No,@Password,@Role_Id)";
             try
             {
-                SqlCommand insertCommand = new SqlCommand(InsertCommand, MainConnection);
+                SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection);
                 insertCommand.Parameters.AddWithValue("@Name", user.Name);
                 insertCommand.Parameters.AddWithValue("@Staff_Id", user.Staff_Id);
                 insertCommand.Parameters.AddWithValue("@Contact_No", user.Contact_No);
@@ -49,7 +50,7 @@ namespace TimeTableManagementAPI.Services
             string InsertCommand = "UPDATE Users SET Name=@Name,Staff_Id=@Staff_Id,Contact_No=@Contact_No,Password=@Password,Role_Id=@Role_Id WHERE Id=" + user.Id;
             try
             {
-                SqlCommand insertCommand = new SqlCommand(InsertCommand, MainConnection);
+                SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection);
                 insertCommand.Parameters.AddWithValue("@Name", user.Name);
                 insertCommand.Parameters.AddWithValue("@Staff_Id", user.Staff_Id);
                 insertCommand.Parameters.AddWithValue("@Contact_No", user.Contact_No);
