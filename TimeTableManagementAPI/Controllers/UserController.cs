@@ -38,13 +38,21 @@ namespace TimeTableAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult Add([FromBody]string value)
+        public IActionResult Add([FromBody]Users user)
         {
-            return null;
+            return Ok(_userServices.Add(user));
+
         }
 
         [HttpPut]
-        public IActionResult Update([FromBody]string value)
+        public IActionResult Update([FromBody]Users user)
+        {
+            return Ok(_userServices.UpdateUser(user));
+        }
+
+        [Route("Update")]
+        [HttpPost]
+        public IActionResult Login(string Satff_Id,string Password)
         {
             return null;
         }
