@@ -47,7 +47,7 @@ namespace TimeTableManagementAPI.Services
 
         public bool UpdateUser(Users user)
         {
-            string InsertCommand = "UPDATE Users SET Name=@Name,Staff_Id=@Staff_Id,Contact_No=@Contact_No,Password=@Password,Role_Id=@Role_Id WHERE Id=" + user.Id;
+            string InsertCommand = "UPDATE Users SET Name=@Name,Staff_Id=@Staff_Id,Contact_No=@Contact_No,Password=@Password,Role_Id=@Role_Id WHERE Id=" + user.Staff_Id;
             try
             {
                 SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection);
@@ -69,5 +69,6 @@ namespace TimeTableManagementAPI.Services
                 return false;
             }
         }
+
     }
 }
