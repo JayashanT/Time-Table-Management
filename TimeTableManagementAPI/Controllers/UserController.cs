@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -14,7 +13,7 @@ namespace TimeTableAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController:Controller
+    public class UserController:ControllerBase
     {
         private IUserServices _userServices;
         private ICommonRepository<Users> _userRepository;
@@ -40,14 +39,22 @@ namespace TimeTableAPI.Controllers
         [HttpPost]
         public IActionResult Add([FromBody]Users user)
         {
-            return Ok(_userServices.Add(user));
+            var result = _userServices.Add(user);
+            if (result)
+                return Ok(result);
+            else
+                return BadRequest(result);
 
         }
 
         [HttpPut]
         public IActionResult Update([FromBody]Users user)
         {
-            return Ok(_userServices.UpdateUser(user));
+            var result = _userServices.UpdateUser(user);
+            if (result)
+                return Ok(result);
+            else
+                return BadRequest(result);
         }
 
         [Route("Update")]

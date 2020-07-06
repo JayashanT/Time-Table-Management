@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
+using Microsoft;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using TimeTableManagementAPI.Utility;
+using System.Data;
 
 namespace TimeTableManagementAPI.Repository
 {
@@ -22,7 +22,7 @@ namespace TimeTableManagementAPI.Repository
         public IEnumerable<TEntity> GetAll(string table)
         {
             try
-            {
+             {
                 DataTable dt = new DataTable();
                 string MyCommand = "Select * from " + table;
                 SqlCommand myCommand = new SqlCommand(MyCommand, _dBContext.MainConnection);
