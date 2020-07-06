@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -14,7 +13,7 @@ namespace TimeTableAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController:Controller
+    public class UserController:ControllerBase
     {
         private IUserServices _userServices;
         private ICommonRepository<Users> _userRepository;
