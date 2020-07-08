@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using TimeTableAPI.Models;
 using TimeTableManagementAPI.Utility;
@@ -15,6 +18,8 @@ namespace TimeTableManagementAPI.Services
         //SqlConnection MainConnection;
 
         DBContext _dBContext;
+        private string key = "1234567890-abcde";
+
         public UserServices()
         {
             _dBContext = new DBContext();
@@ -22,6 +27,7 @@ namespace TimeTableManagementAPI.Services
 
         public bool Add(Users user)
         {
+            var password = Encrypt(user.Password, key);
             string InsertCommand = "INSERT INTO Users (Name,Staff_Id,Contact_No,Password,Role_Id) VALUES(@Name,@Staff_Id,@Contact_No,@Password,@Role_Id)";
             try
             {
@@ -29,7 +35,7 @@ namespace TimeTableManagementAPI.Services
                 insertCommand.Parameters.AddWithValue("@Name", user.Name);
                 insertCommand.Parameters.AddWithValue("@Staff_Id", user.Staff_Id);
                 insertCommand.Parameters.AddWithValue("@Contact_No", user.Contact_No);
-                insertCommand.Parameters.AddWithValue("@Password", user.Password);
+                insertCommand.Parameters.AddWithValue("@Password", password);
                 insertCommand.Parameters.AddWithValue("@Role_Id", user.Role_Id);
 
                 var result = insertCommand.ExecuteNonQuery();
@@ -44,6 +50,71 @@ namespace TimeTableManagementAPI.Services
                 return false;
             }
         }
+
+        public string Encrypt(string password, string keyString)
+        {
+            var key = Encoding.UTF8.GetBytes(keyString);
+
+            using (var aesAlg = Aes.Create())
+            {
+                using (var encryptor = aesAlg.CreateEncryptor(key, aesAlg.IV))
+                {
+                    using (var msEncrypt = new MemoryStream())
+                    {
+                        using (var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                        using (var swEncrypt = new StreamWriter(csEncrypt))
+                        {
+                            swEncrypt.Write(password);
+                        }
+
+                        var iv = aesAlg.IV;
+
+                        var decryptedContent = msEncrypt.ToArray();
+
+                        var result = new byte[iv.Length + decryptedContent.Length];
+
+                        Buffer.BlockCopy(iv, 0, result, 0, iv.Length);
+                        Buffer.BlockCopy(decryptedContent, 0, result, iv.Length, decryptedContent.Length);
+
+                        return Convert.ToBase64String(result);
+                    }
+                }
+            }
+        }
+
+        public string Decrypt(string password, string keyString)
+        {
+            var fullCipher = Convert.FromBase64String(password);
+
+            var iv = new byte[16];
+            var cipher = new byte[fullCipher.Length - iv.Length];
+
+            Buffer.BlockCopy(fullCipher, 0, iv, 0, iv.Length);
+            Buffer.BlockCopy(fullCipher, iv.Length, cipher, 0, fullCipher.Length - iv.Length);
+            var key = Encoding.UTF8.GetBytes(keyString);
+
+            using (var aesAlg = Aes.Create())
+            {
+                using (var decryptor = aesAlg.CreateDecryptor(key, iv))
+                {
+                    string result;
+                    using (var msDecrypt = new MemoryStream(cipher))
+                    {
+                        using (var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+                        {
+                            using (var srDecrypt = new StreamReader(csDecrypt))
+                            {
+                                result = srDecrypt.ReadToEnd();
+                            }
+                        }
+                    }
+
+                    return result;
+                }
+            }
+        }
+
+
 
         public bool UpdateUser(Users user)
         {
