@@ -2,7 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+    <AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
+	<AspNetCoreModuleName>AspNetCoreModule</AspNetCoreModuleName>
+	<UserSecretsId>309e9329-f862-42ff-8a2a-3e6be77a05ef</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
