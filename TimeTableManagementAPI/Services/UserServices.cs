@@ -18,7 +18,7 @@ namespace TimeTableManagementAPI.Services
         //SqlConnection MainConnection;
 
         DBContext _dBContext;
-        private string key = "1234567890-abcde";
+        public string key = "1234567890-abcde";
 
         public UserServices()
         {
