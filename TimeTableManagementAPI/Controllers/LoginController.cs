@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -12,6 +9,8 @@ using System.Text;
 using TimeTableManagementAPI.Models;
 using TimeTableManagementAPI.Utility;
 using System.Data.SqlClient;
+using TimeTableManagementAPI.Services;
+using TimeTableAPI.Models;
 
 namespace TimeTableManagementAPI.Controllers
 {
@@ -20,17 +19,19 @@ namespace TimeTableManagementAPI.Controllers
     public class LoginController:Controller
     {
             private IConfiguration _config;
+            IUserServices _userServices;
             DBContext _dBContext;
 
-        public LoginController(IConfiguration config)
-            {
-                _config = config;
+        public LoginController(IConfiguration config,IUserServices userServices)
+        {
+            _config = config;
             _dBContext = new DBContext();
-            }
+            _userServices = userServices;
+        }
 
             [AllowAnonymous]
             [HttpPost]
-            public IActionResult Login([FromBody]LoginVM login)
+            public IActionResult Login([FromBody]Users login)
             {
                 IActionResult response = Unauthorized();
                 var user = AuthenticateUser(login);
@@ -44,7 +45,7 @@ namespace TimeTableManagementAPI.Controllers
                 return response;
             }
 
-            private string GenerateJSONWebToken(LoginVM userInfo)
+            private string GenerateJSONWebToken(Users userInfo)
             {
                 var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
                 var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -58,9 +59,9 @@ namespace TimeTableManagementAPI.Controllers
                 return new JwtSecurityTokenHandler().WriteToken(token);
             }
 
-            private LoginVM AuthenticateUser(LoginVM login)
+            private Users AuthenticateUser(Users login)
             {
-                LoginVM user = null;
+                Users user =new Users();
 
                 string queryCommand = "Select * from Users where Staff_Id=@Staff_Id";
                 SqlCommand myCommand = new SqlCommand(queryCommand, _dBContext.MainConnection);
@@ -68,14 +69,26 @@ namespace TimeTableManagementAPI.Controllers
                 myCommand.Parameters.AddWithValue("@Staff_Id", login.Staff_Id);
 
                 SqlDataReader reader = myCommand.ExecuteReader();
+                UserServices us = new UserServices();
 
-            //Validate the User Credentials    
-            //Demo Purpose, I have Passed HardCoded User Information    
-            //if (login.Username == "Jignesh")
-            //{
-            //   user = new LoginVM { Username = "Jignesh Trivedi", EmailAddress = "test.btest@gmail.com" };
-            //}
-            return user;
+            if (reader.HasRows)
+            {
+                reader.Read();
+                String Password = _userServices.Decrypt(Convert.ToString(reader["Password"]),us.key);
+                Console.WriteLine(Password);
+                if (Password == login.Password)
+                {
+                    user.Id = Convert.ToInt32(reader["Id"]);
+                    user.Staff_Id = Convert.ToString(reader["Staff_Id"]);
+                    user.Name = Convert.ToString(reader["Name"]);
+                    user.Contact_No = Convert.ToString(reader["Contact_No"]);
+                }
+                else return null;
+
+                return user;
             }
+            else return null;
+        }
+            
     }
 }
