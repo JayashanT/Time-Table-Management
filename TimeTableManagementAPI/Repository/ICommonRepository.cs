@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Data;
 
 namespace TimeTableManagementAPI.Repository
 {
@@ -8,5 +7,6 @@ namespace TimeTableManagementAPI.Repository
         bool DeleteRecord(string table, int Id);
         IEnumerable<TEntity> GetAll(string table);
         IEnumerable<TEntity> GetById(string table, int Id);
+        IEnumerable<TEntity> GetByOneParameter(string table, string Name, string value);
     }
 }

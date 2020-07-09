@@ -116,6 +116,9 @@ CREATE TABLE [Slot] (
 ALTER TABLE Slot 
 ALTER COLUMN Resource_Id DE;
 
+ALTER TABLE Slot
+ADD Period_NO int;
+
 INSERT INTO Slot VALUES('Monday',1,'08:00','08:45',1,2,11,3) 
 INSERT INTO Slot VALUES('Monday',2,'08:45','09:30',1,2,null,3)
 INSERT INTO Slot VALUES('Monday',3,'09:30','10:15',1,2,null,3) 
@@ -132,6 +135,7 @@ CREATE TABLE [Changes] (
 	[Slot_Id] INT NOT NULL,
 	[Admin_Id] INT NOT NULL,
 	[Teacher_Id] INT NOT NULL,
+	[Period_No] INT NOT NULL,
     CONSTRAINT [PK_Changes] PRIMARY KEY CLUSTERED ([Id] ASC),
 	CONSTRAINT [FK_Changes_Slot_Id] FOREIGN KEY ([Slot_Id]) REFERENCES [Slot] ([Id]) ON DELETE CASCADE,
 	CONSTRAINT [FK_Changes_Admin_Id] FOREIGN KEY ([Admin_Id]) REFERENCES [Users] ([Id]),

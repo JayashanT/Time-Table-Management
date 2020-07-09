@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace TimeTableManagementAPI.Models
 {
-    public class Teachet_Subject
+    public class Teacher_Subject
     {
         public int Teacher_Id { get; set; }
         public int Subject_Id { get; set; }

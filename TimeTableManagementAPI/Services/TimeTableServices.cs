@@ -47,7 +47,7 @@ namespace TimeTableManagementAPI.Services
                     SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection);
                     insertCommand.Parameters.AddWithValue("@Name", time_Table.Name);
                     insertCommand.Parameters.AddWithValue("@Grade", time_Table.Grade);
-                    insertCommand.Parameters.AddWithValue("@Admin_Id", time_Table.Admin_Id);
+                    insertCommand.Parameters.AddWithValue("@Admin_Id", time_Table.Admin_Id );
 
                     var result = insertCommand.ExecuteNonQuery();
                     if (result > 0)
@@ -60,7 +60,8 @@ namespace TimeTableManagementAPI.Services
                     Console.WriteLine(e.Message);
                     return false;
                 }
-            }
         }
-    
+
+        //public 
+    }    
 }
