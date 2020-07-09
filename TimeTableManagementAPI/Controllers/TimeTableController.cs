@@ -11,7 +11,7 @@ namespace TimeTableManagementAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TimeTableController : ControllerBase
+    public class TimeTableController : Controller
     {
         ICommonRepository<Time_Table> _timeTableRepo;
         public TimeTableController(ICommonRepository<Time_Table> timeTableRepo)
@@ -21,7 +21,12 @@ namespace TimeTableManagementAPI.Controllers
 
         public IActionResult GetAllTimeTables()
         {
-            return null;
+            var result = _timeTableRepo.GetAll("Time_table");
+            if (result != null)
+                return Ok(result);
+            else
+                return BadRequest("No time tables Found");
+            
         }
 
         [HttpPost]

@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using TimeTableAPI.Models;
+using TimeTableManagementAPI.Models;
 using TimeTableManagementAPI.Repository;
 using TimeTableManagementAPI.Services;
 
@@ -35,6 +36,9 @@ namespace TimeTableManagementAPI
 
             services.AddScoped<IUserServices, UserServices>();
             services.AddScoped<ICommonRepository<Users>, CommonRepository<Users>>();
+            services.AddScoped<ICommonRepository<Time_Table>, CommonRepository<Time_Table>>();
+            services.AddScoped<ICommonRepository<Subject>, CommonRepository<Subject>>();
+            services.AddScoped<ICommonRepository<Teacher_Subject>, CommonRepository<Teacher_Subject>>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
         {

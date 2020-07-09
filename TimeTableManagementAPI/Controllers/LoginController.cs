@@ -82,6 +82,7 @@ namespace TimeTableManagementAPI.Controllers
                     user.Staff_Id = Convert.ToString(reader["Staff_Id"]);
                     user.Name = Convert.ToString(reader["Name"]);
                     user.Contact_No = Convert.ToString(reader["Contact_No"]);
+                    user.Role_Id = Convert.ToInt32(reader["Role_Id"]);
                 }
                 else return null;
 

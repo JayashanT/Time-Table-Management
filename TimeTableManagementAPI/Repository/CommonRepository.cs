@@ -9,7 +9,6 @@ using System.Data;
 
 namespace TimeTableManagementAPI.Repository
 {
-    //public class CommonRepository<TEntity> : ICommonRepository where TEntity : class
     public class CommonRepository<TEntity> : ICommonRepository<TEntity> where TEntity :class
     {
 
@@ -58,6 +57,35 @@ namespace TimeTableManagementAPI.Repository
             try {
                 DataTable dt = new DataTable();
                 string MyCommand = "Select * from " + table + " where Id=" + Id;
+                SqlCommand myCommand = new SqlCommand(MyCommand, _dBContext.MainConnection);
+                SqlDataAdapter da = new SqlDataAdapter(myCommand);
+                da.Fill(dt);
+
+                List<TEntity> entities = new List<TEntity>(dt.Rows.Count);
+                if (dt.Rows.Count > 0)
+                {
+                    TEntity item = GetItem<TEntity>(dt.Rows[0]);
+                    entities.Add(item);
+                }
+                else return null;
+
+                return entities;
+
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return null;
+            }
+        }
+
+        public IEnumerable<TEntity> GetByOneParameter(string table, string Name, string value)
+        {
+            try
+            {
+                DataTable dt = new DataTable();
+                string MyCommand = "Select * from " + table + " where "+Name+"=" + value;
                 SqlCommand myCommand = new SqlCommand(MyCommand, _dBContext.MainConnection);
                 SqlDataAdapter da = new SqlDataAdapter(myCommand);
                 da.Fill(dt);
