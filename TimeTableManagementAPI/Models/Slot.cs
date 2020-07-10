@@ -15,5 +15,6 @@ namespace TimeTableManagementAPI.Models
         public int Time_Table_Id { get; set; }
         public int Resource_Id { get; set; }
         public int Teacher_Id { get; set; }
+        public int Subject_Id { get; set; }
     }
 }
