@@ -9,7 +9,7 @@ using TimeTableManagementAPI.Utility;
 
 namespace TimeTableManagementAPI.Services
 {
-    public class TimeTableServices
+    public class TimeTableServices : ITimeTableServices
     {
         DBContext _dBContext;
         public TimeTableServices()

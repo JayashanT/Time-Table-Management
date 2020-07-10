@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TimeTableManagementAPI.Models;
 using TimeTableManagementAPI.Repository;
+using TimeTableManagementAPI.Services;
 
 namespace TimeTableManagementAPI.Controllers
 {
@@ -14,9 +15,11 @@ namespace TimeTableManagementAPI.Controllers
     public class TimeTableController : Controller
     {
         ICommonRepository<Time_Table> _timeTableRepo;
-        public TimeTableController(ICommonRepository<Time_Table> timeTableRepo)
+        ITimeTableServices _timeTableServices;
+        public TimeTableController(ICommonRepository<Time_Table> timeTableRepo,ITimeTableServices timeTableServices)
         {
             _timeTableRepo = timeTableRepo;
+            _timeTableServices = timeTableServices;
         }
 
         public IActionResult GetAllTimeTables()
@@ -32,7 +35,22 @@ namespace TimeTableManagementAPI.Controllers
         [HttpPost]
         public IActionResult CreateATimeTable(Time_Table time_Table)
         {
-            return null;
+            var Result = _timeTableServices.Add(time_Table);
+            if (Result)
+                return Ok();
+            else
+                return BadRequest("Not Created");
+        }
+
+        [HttpPost]
+        [Route("AddSlot")]
+        public IActionResult CreateATimeTableSlot(Slot slot)
+        {
+            var Result = _timeTableServices.CreateAPeriodSlot(slot);
+            if (Result == "Teacher is not available for this slot")
+                return BadRequest("Teacher is not available for this slot");
+            else
+                return Ok("Slot Created");
         }
 
         [HttpDelete]
