@@ -33,7 +33,7 @@ namespace TimeTableManagementAPI.Controllers
         [Route("{id}")]
         public IActionResult GetASubjectById(int Id)
         {
-            var Result = _subjectRepository.GetById("Class", Id);
+            var Result = _subjectRepository.GetById("Subject", Id);
             return Ok(Result);
         }
 

@@ -62,6 +62,9 @@ namespace TimeTableManagementAPI.Services
                 }
         }
 
-        //public 
+       public bool CreateAPeriodSlot(Slot slot)
+        {
+
+        } 
     }    
 }
