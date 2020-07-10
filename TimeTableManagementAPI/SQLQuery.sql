@@ -261,10 +261,16 @@ WHERE U.Role_Id=2 AND U.Id!=2 AND T.Subject_Id=2
 /*All teachers having free time for perticular day for a perticular period to assign a releif*/
 Select DISTINCT*
 FROM Users U
-FULL JOIN Slot S
+INNER JOIN Slot S
 ON S.Teacher_Id=U.Id
 INNER JOIN Teacher_Subject T
 ON U.Id=T.Teacher_Id
 WHERE U.Role_Id=2 AND U.Id!=2
 	
+/*select *
+from users u
+left join slot s
+on u.Id=s.Teacher_Id
+inner join 
+WHERE u.Role_Id!=1 AND s.Period_No!=2*/
 

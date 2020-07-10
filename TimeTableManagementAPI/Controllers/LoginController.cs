@@ -11,6 +11,7 @@ using TimeTableManagementAPI.Utility;
 using System.Data.SqlClient;
 using TimeTableManagementAPI.Services;
 using TimeTableAPI.Models;
+using Microsoft.Extensions.Options;
 
 namespace TimeTableManagementAPI.Controllers
 {
@@ -18,9 +19,10 @@ namespace TimeTableManagementAPI.Controllers
     [ApiController]
     public class LoginController:Controller
     {
-            private IConfiguration _config;
-            IUserServices _userServices;
-            DBContext _dBContext;
+        private IConfiguration _config;
+        IUserServices _userServices;
+        DBContext _dBContext;
+        //private readonly IOptions<AppSettings> _appSettings;
 
         public LoginController(IConfiguration config,IUserServices userServices)
         {
@@ -47,17 +49,35 @@ namespace TimeTableManagementAPI.Controllers
 
             private string GenerateJSONWebToken(Users userInfo)
             {
-                var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-                var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            /* var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-                var token = new JwtSecurityToken(_config["Jwt:Issuer"],
-                  _config["Jwt:Issuer"],
-                  null,
-                  expires: DateTime.Now.AddMinutes(120),
-                  signingCredentials: credentials);
+             var token = new JwtSecurityToken(_config["Jwt:Issuer"],
+               _config["Jwt:Issuer"],
+               null,
+               expires: DateTime.Now.AddMinutes(120),
+               signingCredentials: credentials);
 
-                return new JwtSecurityTokenHandler().WriteToken(token);
-            }
+             return new JwtSecurityTokenHandler().WriteToken(token);*/
+            var tokenHandeler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_config["Jwt:Key"]);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+                    new Claim("Id",userInfo.Id.ToString()),
+                    new Claim("Staff_Id",userInfo.Staff_Id.ToString()),
+                    new Claim("Name",userInfo.Name),
+                    new Claim("Role_Id",userInfo.Role_Id.ToString()),
+                    new Claim("Contact_No",userInfo.Contact_No.ToString()),
+
+                }),
+                Expires = DateTime.UtcNow.AddDays(1),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandeler.CreateToken(tokenDescriptor);
+            return tokenHandeler.WriteToken(token);
+        }
 
             private Users AuthenticateUser(Users login)
             {
