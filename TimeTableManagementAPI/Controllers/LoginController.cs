@@ -38,12 +38,13 @@ namespace TimeTableManagementAPI.Controllers
                 IActionResult response = Unauthorized();
                 var user = AuthenticateUser(login);
 
-                if (user != null)
-                {
-                    var tokenString = GenerateJSONWebToken(user);
-                    response = Ok(new { token = tokenString });
-                }
-
+            if (user != null)
+            {
+                var tokenString = GenerateJSONWebToken(user);
+                response = Ok(new { token = tokenString });
+            }
+            else
+                response = BadRequest("Password or Staff id incorrect");
                 return response;
             }
 
