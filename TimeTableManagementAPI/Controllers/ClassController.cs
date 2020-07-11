@@ -13,7 +13,7 @@ namespace TimeTableManagementAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ClassController : ControllerBase
+    public class ClassController : Controller
     {
         ICommonRepository<Class> _classRepository;
         DBContext _dBContext;
