@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using TimeTableAPI.Models;
 using TimeTableManagementAPI.Models;
+using TimeTableManagementAPI.VM;
 
 namespace TimeTableManagementAPI.Services
 {
@@ -9,6 +10,6 @@ namespace TimeTableManagementAPI.Services
         bool Add(Time_Table timeTable);
         string CreateAPeriodSlot(Slot slot);
         bool Update(Time_Table time_Table);
-        IEnumerable<Users> GetAllTeachersAvailableForSlotForASubject(int PeriodNo, string Day, int SubjectId);
+        IEnumerable<AvailableTeachers> GetAllTeachersAvailableForSlotForASubject(int PeriodNo, string Day, int SubjectId);
     }
 }

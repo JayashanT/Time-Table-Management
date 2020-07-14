@@ -18,14 +18,14 @@ namespace TimeTableManagementAPI.Controllers
     {
         ICommonRepository<Subject> _subjectRepository;
         ICommonRepository<Teacher_Subject> _subjectTeacherRepository;
-        ICommonRepository<Users> _loginVMRepository;
+        ICommonRepository<Users> _userRepository;
         DBContext _dBContext;
         public SubjectController(ICommonRepository<Subject> subjectRepository, ICommonRepository<Teacher_Subject> subjectTeacherRepository, 
-            ICommonRepository<Users> loginVMRepository)
+            ICommonRepository<Users> userRepository)
         {
             _subjectRepository = subjectRepository;
             _subjectTeacherRepository = subjectTeacherRepository;
-            _loginVMRepository = loginVMRepository;
+            _userRepository = userRepository;
             _dBContext = new DBContext();
         }
 
@@ -82,7 +82,7 @@ namespace TimeTableManagementAPI.Controllers
                 {
                     foreach (DataRow record in dt.Rows)
                     {
-                        Users item = _loginVMRepository.GetItem<Users>(record);
+                        Users item = _userRepository.GetItem<Users>(record);
                         entities.Add(item);
                     }
                 }

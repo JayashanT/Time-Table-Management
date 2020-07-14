@@ -14,9 +14,6 @@ namespace TimeTableManagementAPI.Services
 {
     public class UserServices : IUserServices
     {
-        //string ConnectionInformation = "Server=localhost;Database=TimeTableDB;Trusted_Connection=True;MultipleActiveResultSets=true";
-        //SqlConnection MainConnection;
-
         DBContext _dBContext;
         public string key = "1234567890-abcde";
 
