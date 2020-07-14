@@ -37,6 +37,7 @@ namespace TimeTableManagementAPI
             services.AddScoped<IUserServices, UserServices>();
             services.AddScoped<ITimeTableServices, TimeTableServices>();
             services.AddScoped<ICommonRepository<Users>, CommonRepository<Users>>();
+            services.AddScoped<ICommonRepository<LoginVM>, CommonRepository<LoginVM>>();
             services.AddScoped<ICommonRepository<Class>, CommonRepository<Class>>();
             services.AddScoped<ICommonRepository<Time_Table>, CommonRepository<Time_Table>>();
             services.AddScoped<ICommonRepository<Subject>, CommonRepository<Subject>>();

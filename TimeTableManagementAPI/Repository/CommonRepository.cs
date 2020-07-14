@@ -92,10 +92,13 @@ namespace TimeTableManagementAPI.Repository
                 List<TEntity> entities = new List<TEntity>(dt.Rows.Count);
                 if (dt.Rows.Count > 0)
                 {
-                    TEntity item = GetItem<TEntity>(dt.Rows[0]);
-                    entities.Add(item);
+                    foreach (DataRow record in dt.Rows)
+                    {
+                        TEntity item = GetItem<TEntity>(record);
+                        entities.Add(item);
+                    }
+
                 }
-                else return null;
 
                 return entities;
 
@@ -127,7 +130,7 @@ namespace TimeTableManagementAPI.Repository
             }
         }
 
-        private static TEntity GetItem<T>(DataRow dr)
+        public TEntity GetItem<T>(DataRow dr)
         {
             Type temp = typeof(TEntity);
             TEntity obj = Activator.CreateInstance<TEntity>();
