@@ -35,6 +35,7 @@ namespace TimeTableManagementAPI
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services.AddScoped<IUserServices, UserServices>();
+            services.AddScoped<ITimeTableServices, TimeTableServices>();
             services.AddScoped<ICommonRepository<Users>, CommonRepository<Users>>();
             services.AddScoped<ICommonRepository<Class>, CommonRepository<Class>>();
             services.AddScoped<ICommonRepository<Time_Table>, CommonRepository<Time_Table>>();

@@ -64,9 +64,22 @@ namespace TimeTableManagementAPI.Controllers
         }
 
         [HttpPut]
-        public IActionResult UpdateATimeTable()
+        public IActionResult UpdateATimeTable([FromBody]Time_Table time_Table)
         {
-            return null;
+            var Result = _timeTableServices.Update(time_Table);
+            if (Result)
+                return Ok("Time Table Updated");
+            else
+                return BadRequest("Time Table Updated");
+            
+        }
+
+        [HttpPost]
+        [Route("GetAvailableTeachers")]
+        public IActionResult GetAllTeachersAvailableForSlotForASubject(int PeriodNo, string Day, int SubjectId)
+        {
+
+            return Ok(_timeTableServices.GetAllTeachersAvailableForSlotForASubject(PeriodNo, Day, SubjectId));
         }
 
         [HttpPost]
@@ -75,5 +88,7 @@ namespace TimeTableManagementAPI.Controllers
         {
             return null;
         }
+
+       
     }
 }

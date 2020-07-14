@@ -60,15 +60,14 @@ namespace TimeTableManagementAPI.Controllers
             }
         }
 
-        [Route("GetAllTeachersForASubject")]
+        [Route("GetAllTeachersForASubject/{id}")]
         public IActionResult GetAllTeachersForASubject(int Id)
         {
-            //string value = Convert.ToString(Id);
             var result=_subjectTeacherRepository.GetByOneParameter("Teacher_Subject","Subject_Id", Convert.ToString(Id));
             return Ok(result);
         }
 
-        [Route("GetAllSubjectsOfATeacher")]
+        [Route("GetAllSubjectsOfATeacher/{id}")]
         public IActionResult GetAllSubjectsOfATeacher(int Id)
         {
             var result = _subjectTeacherRepository.GetByOneParameter("Teacher_Subject", "Teacher_Id", Convert.ToString(Id));

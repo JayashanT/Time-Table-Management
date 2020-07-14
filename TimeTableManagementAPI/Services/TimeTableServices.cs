@@ -105,15 +105,19 @@ namespace TimeTableManagementAPI.Services
                 return "Error in Saving";
             }
         }
-        /*
-        public IEnumerable<Users> GetAllTeachersAvailableForSlotForASubject()
+        
+        public IEnumerable<Users> GetAllTeachersAvailableForSlotForASubject(int PeriodNo,string Day,int SubjectId)
         {
             string AvailablityTeachers = "select * from users u inner join slot s on u.Id = s.Teacher_Id " +
-                "WHERE S.Teacher_Id != @Teacher_Id AND u.Role_Id != 1 AND s.Period_No != @Period_No";
+                "left join Teacher_Subject t on u.Id = t.Teacher_Id WHERE T.Subject_Id = @Subject_Id";
             SqlCommand QueryCommand = new SqlCommand(AvailablityTeachers, _dBContext.MainConnection);
-            QueryCommand.Parameters.AddWithValue("@Teacher_Id", slot.Day);
-            QueryCommand.Parameters.AddWithValue("@Period_No", slot.Day);
+            QueryCommand.Parameters.AddWithValue("@Subject_Id", SubjectId);
 
-        }*/
+            SqlDataReader reader = QueryCommand.ExecuteReader();
+            int Id = Convert.ToInt32(reader["Id"]);
+
+            return null;
+
+        }
     }    
 }
