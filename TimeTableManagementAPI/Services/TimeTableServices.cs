@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using TimeTableAPI.Models;
 using TimeTableManagementAPI.Models;
 using TimeTableManagementAPI.Utility;
+using TimeTableManagementAPI.VM;
 
 namespace TimeTableManagementAPI.Services
 {
@@ -106,17 +108,39 @@ namespace TimeTableManagementAPI.Services
             }
         }
         
-        public IEnumerable<Users> GetAllTeachersAvailableForSlotForASubject(int PeriodNo,string Day,int SubjectId)
+        public IEnumerable<AvailableTeachers> GetAllTeachersAvailableForSlotForASubject(int PeriodNo,string Day,int SubjectId)
         {
-            string AvailablityTeachers = "select * from users u inner join slot s on u.Id = s.Teacher_Id " +
+            DataTable dt = new DataTable();
+            string AvailablityTeachers = "select u.Id,u.Name,s.Period_No,s.Day from users u inner join slot s on u.Id = s.Teacher_Id " +
                 "left join Teacher_Subject t on u.Id = t.Teacher_Id WHERE T.Subject_Id = @Subject_Id";
             SqlCommand QueryCommand = new SqlCommand(AvailablityTeachers, _dBContext.MainConnection);
             QueryCommand.Parameters.AddWithValue("@Subject_Id", SubjectId);
 
             SqlDataReader reader = QueryCommand.ExecuteReader();
-            int Id = Convert.ToInt32(reader["Id"]);
+            List<AvailableTeachers> entities = new List<AvailableTeachers>();
+            while (reader.Read())
+            {
+                AvailableTeachers user = new AvailableTeachers()
+                {
+                    Id= Convert.ToInt32(reader["Id"]),
+                    Name=Convert.ToString(reader["Name"]),
+                    Period_No = Convert.ToInt32(reader["Period_No"]),
+                    Day = Convert.ToString(reader["Day"])
+                };
+                entities.Add(user);
+            }
+            foreach (var entry in entities)
+            {
+                if (entry.Period_No == PeriodNo)
+                {
+                    if (entry.Day == Day)
+                    {
+                        entities.Remove(entry);
+                    }
+                }
+            }
 
-            return null;
+            return entities;
 
         }
     }    

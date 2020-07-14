@@ -275,3 +275,6 @@ left join Teacher_Subject t
 on u.Id=t.Teacher_Id
 WHERE T.Subject_Id=2 AND u.Role_Id!=1
 
+select * from Teacher_Subject where Subject_Id=2
+
+select * from users u inner join slot s on u.Id = s.Teacher_Id left join Teacher_Subject t on u.Id = t.Teacher_Id WHERE T.Subject_Id = 2
