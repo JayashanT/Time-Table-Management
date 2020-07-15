@@ -9,7 +9,7 @@ namespace TimeTableManagementAPI.VM
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public int Period_No { get; set; }
+        public string Period_No { get; set; }
         public string Day { get; set; }
     }
 }

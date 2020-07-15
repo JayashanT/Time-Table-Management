@@ -75,10 +75,10 @@ namespace TimeTableManagementAPI.Controllers
         }
 
         [Route("GetAvailableTeachers")]
-        public IActionResult GetAllTeachersAvailableForSlotForASubject(int PeriodNo, string Day, int SubjectId)
+        public IActionResult GetAllTeachersAvailableForSlotForASubject(string PeriodNo,int SubjectId)
         {
 
-            return Ok(_timeTableServices.GetAllTeachersAvailableForSlotForASubject(PeriodNo, Day, SubjectId));
+            return Ok(_timeTableServices.GetAllTeachersAvailableForSlotForASubject(PeriodNo, SubjectId));
         }
 
         [HttpPost]
