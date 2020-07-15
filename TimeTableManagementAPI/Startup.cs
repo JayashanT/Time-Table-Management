@@ -42,6 +42,7 @@ namespace TimeTableManagementAPI
             services.AddScoped<ICommonRepository<Time_Table>, CommonRepository<Time_Table>>();
             services.AddScoped<ICommonRepository<Subject>, CommonRepository<Subject>>();
             services.AddScoped<ICommonRepository<Teacher_Subject>, CommonRepository<Teacher_Subject>>();
+            services.AddScoped<ICommonRepository<Slot>, CommonRepository<Slot>>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
         {

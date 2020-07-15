@@ -16,10 +16,12 @@ namespace TimeTableManagementAPI.Controllers
     {
         ICommonRepository<Time_Table> _timeTableRepo;
         ITimeTableServices _timeTableServices;
-        public TimeTableController(ICommonRepository<Time_Table> timeTableRepo,ITimeTableServices timeTableServices)
+        ICommonRepository<Slot> _slotRepo;
+        public TimeTableController(ICommonRepository<Time_Table> timeTableRepo,ITimeTableServices timeTableServices, ICommonRepository<Slot> slotRepo)
         {
             _timeTableRepo = timeTableRepo;
             _timeTableServices = timeTableServices;
+            _slotRepo = slotRepo;
         }
 
         public IActionResult GetAllTimeTables()
@@ -36,10 +38,10 @@ namespace TimeTableManagementAPI.Controllers
         public IActionResult CreateATimeTable(Time_Table time_Table)
         {
             var Result = _timeTableServices.Add(time_Table);
-            if (Result)
-                return Ok();
+            if (Result=="true")
+                return Ok("Time Table Created");
             else
-                return BadRequest("Not Created");
+               return BadRequest(Result);
         }
 
         [HttpPost]
@@ -81,13 +83,19 @@ namespace TimeTableManagementAPI.Controllers
             return Ok(_timeTableServices.GetAllTeachersAvailableForSlotForASubject(PeriodNo, SubjectId));
         }
 
-        [HttpPost]
-        [Route("{id}")]
-        public IActionResult GetAllDetailsRelatedToATimeTable()
+       
+        [Route("GetTimeTableDetails/{id}")]
+        public IActionResult GetAllDetailsRelatedToATimeTable(int Id)
         {
-            return null;
+            return Ok(_timeTableServices.GetTimeTableDetails(Id));
         }
 
-       
+        [Route("getASlotById/{id}")]
+        public IActionResult getASlotById(int Id)
+        {
+            return Ok(_slotRepo.GetById("Slot",Id));
+        }
+
+
     }
 }

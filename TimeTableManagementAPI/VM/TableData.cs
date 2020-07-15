@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TimeTableManagementAPI.Models;
 
-namespace TimeTableManagementAPI.Models
+namespace TimeTableManagementAPI.VM
 {
-    public class Time_Table
+    public class TableData
     {
         public int Id { get; set; }
         public string Name { get; set; }
         public int Grade { get; set; }
         public int Admin_Id { get; set; }
-        public int Class_Id { get; set; }
+        public List<Slot> Slot { get; set; }
     }
 }
