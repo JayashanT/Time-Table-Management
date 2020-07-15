@@ -117,7 +117,7 @@ ALTER TABLE Slot
 ALTER COLUMN Resource_Id DE;
 
 ALTER TABLE Slot
-ADD Period_NO int;
+ALTER COLUMN Period_NO NVARCHAR (MAX);
 
 INSERT INTO Slot VALUES('Monday',1,'08:00','08:45',1,2,11,3) 
 INSERT INTO Slot VALUES('Monday',2,'08:45','09:30',1,2,null,3)
@@ -267,13 +267,13 @@ INNER JOIN Teacher_Subject T
 ON U.Id=T.Teacher_Id
 WHERE U.Role_Id=2 AND U.Id!=2
 	
-select *
+select distinct*
 from users u
 left join slot s
 on u.Id=s.Teacher_Id
 left join Teacher_Subject t
 on u.Id=t.Teacher_Id
-WHERE T.Subject_Id=2 AND u.Role_Id!=1
+WHERE t.Subject_Id=2 AND u.Role_Id!=1
 
 select * from Teacher_Subject where Subject_Id=2
 
