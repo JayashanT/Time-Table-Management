@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TimeTableAPI.Models;
 using TimeTableManagementAPI.Models;
+using TimeTableManagementAPI.Repository;
 using TimeTableManagementAPI.Utility;
 using TimeTableManagementAPI.VM;
 
@@ -14,24 +15,39 @@ namespace TimeTableManagementAPI.Services
     public class TimeTableServices : ITimeTableServices
     {
         DBContext _dBContext;
-        public TimeTableServices()
+        ICommonRepository<Time_Table> _timetableRepo;
+        ICommonRepository<Slot> _slotRepo;
+        public TimeTableServices(ICommonRepository<Time_Table> timetableRepo,ICommonRepository<Slot> slotRepo)
         {
             _dBContext = new DBContext();
+            _timetableRepo = timetableRepo;
+            _slotRepo = slotRepo;
         }
 
-        public bool Add(Time_Table timeTable)
+        public object Add(Time_Table timeTable)
         {
-            string InsertCommand = "INSERT INTO Users (Name,Grade,Admin_Id) VALUES(@Name,@Grade,@Admin_Id)";
+            string checkTimeTableAvaiblity = "SELECT * from Time_Table where Class_Id=@Class_Id";
+            SqlCommand checkCommand = new SqlCommand(checkTimeTableAvaiblity, _dBContext.MainConnection);
+            checkCommand.Parameters.AddWithValue("@Class_Id", timeTable.Class_Id);
+
+            SqlDataReader reader = checkCommand.ExecuteReader();
+            if (reader.HasRows)
+            {
+                return ("Time Table already Available For Class");
+            }
+
+            string InsertCommand = "INSERT INTO Time_Table (Name,Grade,Admin_Id,Class_Id) VALUES(@Name,@Grade,@Admin_Id,@Class_Id)";
             try
             {
                 SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection);
                 insertCommand.Parameters.AddWithValue("@Name", timeTable.Name);
                 insertCommand.Parameters.AddWithValue("@Grade", timeTable.Grade);
                 insertCommand.Parameters.AddWithValue("@Admin_Id", timeTable.Admin_Id);
+                insertCommand.Parameters.AddWithValue("@Class_Id", timeTable.Class_Id);
 
                 var result = insertCommand.ExecuteNonQuery();
                 if (result > 0)
-                    return true;
+                    return "true";
                 else
                     return false;
             }
@@ -44,13 +60,14 @@ namespace TimeTableManagementAPI.Services
 
         public bool Update(Time_Table time_Table)
         {
-            string InsertCommand = "UPDATE Time_Table SET Name=@Name,Grade=@Grade,Admin_Id=@Admin_Id WHERE Id=" + time_Table.Id;
+            string InsertCommand = "UPDATE Time_Table SET Name=@Name,Grade=@Grade,Admin_Id=@Admin_Id,Class_Id=@Class_Id WHERE Id=" + time_Table.Id;
             try
             {
                 SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection);
                 insertCommand.Parameters.AddWithValue("@Name", time_Table.Name);
                 insertCommand.Parameters.AddWithValue("@Grade", time_Table.Grade);
                 insertCommand.Parameters.AddWithValue("@Admin_Id", time_Table.Admin_Id);
+                insertCommand.Parameters.AddWithValue("@Class_Id", time_Table.Class_Id);
 
                 var result = insertCommand.ExecuteNonQuery();
                 if (result > 0)
@@ -151,9 +168,16 @@ namespace TimeTableManagementAPI.Services
             return entities;
         }
 
-       // public IEnumerable<> GetTimeTableDetails()
-        //{
+        public Object GetTimeTableDetails(int Id)
+        {
+            var Result=_timetableRepo.GetById("Time_Table",Id);
+            var AllSlotsOFATimeTable = _slotRepo.GetByOneParameter("Slot", "Time_Table_Id", Convert.ToString(Id));
+            return new
+            {
+                Result,
+                AllSlotsOFATimeTable
+            };
 
-        //}
+        }
     }    
 }

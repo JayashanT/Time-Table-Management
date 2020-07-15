@@ -58,6 +58,8 @@ CREATE TABLE [Class] (
 
 INSERT INTO Class VALUES('1-A',1) 
 INSERT INTO Class VALUES('2-A',2)
+INSERT INTO Class VALUES('1-B',2)
+INSERT INTO Class VALUES('2-B',2)
 
 CREATE TABLE [Time_Table] (
     [Id] INT IDENTITY (1, 1) NOT NULL,
@@ -278,3 +280,5 @@ WHERE t.Subject_Id=2 AND u.Role_Id!=1
 select * from Teacher_Subject where Subject_Id=2
 
 select * from users u inner join slot s on u.Id = s.Teacher_Id left join Teacher_Subject t on u.Id = t.Teacher_Id WHERE T.Subject_Id = 2
+
+select * from slot where id=6
