@@ -74,7 +74,6 @@ namespace TimeTableManagementAPI.Controllers
             
         }
 
-        [HttpPost]
         [Route("GetAvailableTeachers")]
         public IActionResult GetAllTeachersAvailableForSlotForASubject(int PeriodNo, string Day, int SubjectId)
         {

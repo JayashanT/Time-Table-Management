@@ -37,37 +37,36 @@ namespace TimeTableManagementAPI.Services
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message); 
+                Console.WriteLine(e.Message);
                 return false;
             }
         }
 
         public bool Update(Time_Table time_Table)
         {
-                string InsertCommand = "UPDATE Time_Table SET Name=@Name,Grade=@Grade,Admin_Id=@Admin_Id WHERE Id=" + time_Table.Id;
-                try
-                {
-                    SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection);
-                    insertCommand.Parameters.AddWithValue("@Name", time_Table.Name);
-                    insertCommand.Parameters.AddWithValue("@Grade", time_Table.Grade);
-                    insertCommand.Parameters.AddWithValue("@Admin_Id", time_Table.Admin_Id );
+            string InsertCommand = "UPDATE Time_Table SET Name=@Name,Grade=@Grade,Admin_Id=@Admin_Id WHERE Id=" + time_Table.Id;
+            try
+            {
+                SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection);
+                insertCommand.Parameters.AddWithValue("@Name", time_Table.Name);
+                insertCommand.Parameters.AddWithValue("@Grade", time_Table.Grade);
+                insertCommand.Parameters.AddWithValue("@Admin_Id", time_Table.Admin_Id);
 
-                    var result = insertCommand.ExecuteNonQuery();
-                    if (result > 0)
-                        return true;
-                    else
-                        return false;
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
+                var result = insertCommand.ExecuteNonQuery();
+                if (result > 0)
+                    return true;
+                else
                     return false;
-                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return false;
+            }
         }
 
         public string CreateAPeriodSlot(Slot slot)
         {
-            //if teacher not availble for the slot
             string checkCommand = "select * from slot where Teacher_id=@Teacher_Id AND Day like @Day AND Period_No=@Period_No";
             SqlCommand CheckAvailablility = new SqlCommand(checkCommand, _dBContext.MainConnection);
             CheckAvailablility.Parameters.AddWithValue("@Teacher_Id", slot.Teacher_Id);
@@ -79,6 +78,19 @@ namespace TimeTableManagementAPI.Services
             if (reader.HasRows)
             {
                 return "Teacher is not available for this slot";
+            }
+
+            string checkSlot = "select * from slot where Time_Table_Id=@Time_Table_Id AND Day like @Day AND Period_No=@Period_No";
+            SqlCommand checkSlotCommand = new SqlCommand(checkSlot, _dBContext.MainConnection);
+            CheckAvailablility.Parameters.AddWithValue("@Time_Table_Id", slot.Time_Table_Id);
+            CheckAvailablility.Parameters.AddWithValue("@Day", slot.Day);
+            CheckAvailablility.Parameters.AddWithValue("@Period_No", slot.Period_No);
+
+            SqlDataReader checkSlotReader = CheckAvailablility.ExecuteReader();
+
+            if (checkSlotReader.HasRows)
+            {
+                return "Slot Already Allocated";
             }
 
             string InsertCommand = "INSERT INTO Users (Day,Stat_Time,End_Time,Period_No,Time_Table_Id,Resource_Id,Teacher_Id,Subject_Id) " +
@@ -107,8 +119,8 @@ namespace TimeTableManagementAPI.Services
                 return "Error in Saving";
             }
         }
-        
-        public IEnumerable<AvailableTeachers> GetAllTeachersAvailableForSlotForASubject(int PeriodNo,string Day,int SubjectId)
+
+        public IEnumerable<AvailableTeachers> GetAllTeachersAvailableForSlotForASubject(int PeriodNo, string Day, int SubjectId)
         {
             DataTable dt = new DataTable();
             string AvailablityTeachers = "select u.Id,u.Name,s.Period_No,s.Day from users u inner join slot s on u.Id = s.Teacher_Id " +
@@ -122,8 +134,8 @@ namespace TimeTableManagementAPI.Services
             {
                 AvailableTeachers user = new AvailableTeachers()
                 {
-                    Id= Convert.ToInt32(reader["Id"]),
-                    Name=Convert.ToString(reader["Name"]),
+                    Id = Convert.ToInt32(reader["Id"]),
+                    Name = Convert.ToString(reader["Name"]),
                     Period_No = Convert.ToInt32(reader["Period_No"]),
                     Day = Convert.ToString(reader["Day"])
                 };
@@ -139,8 +151,11 @@ namespace TimeTableManagementAPI.Services
                     }
                 }
             }
-
             return entities;
+        }
+
+        public IEnumerable<> GetTimeTableDetails()
+        {
 
         }
     }    

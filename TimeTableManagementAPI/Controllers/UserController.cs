@@ -56,13 +56,5 @@ namespace TimeTableAPI.Controllers
             else
                 return BadRequest(result);
         }
-
-        /*[Route("Update")]
-        [HttpPost]
-        public IActionResult Login(string Satff_Id,string Password)
-        {
-            return null;
-        }*/
-
     }
 }
