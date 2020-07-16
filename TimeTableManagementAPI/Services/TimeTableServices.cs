@@ -140,7 +140,7 @@ namespace TimeTableManagementAPI.Services
         public IEnumerable<AvailableTeachers> GetAllTeachersAvailableForSlotForASubject(string PeriodNo, int SubjectId)
         {
             DataTable dt = new DataTable();
-            string AvailablityTeachers = "select distinct* from users u left join slot s on u.Id = s.Teacher_Id " +
+            string AvailablityTeachers = "select distinct u.id,u.name from users u left join slot s on u.Id = s.Teacher_Id " +
                 "left join Teacher_Subject t on u.Id = t.Teacher_Id WHERE t.Subject_Id = 2 AND u.Role_Id != 1";
             SqlCommand QueryCommand = new SqlCommand(AvailablityTeachers, _dBContext.MainConnection);
             QueryCommand.Parameters.AddWithValue("@Subject_Id", SubjectId);
@@ -153,8 +153,6 @@ namespace TimeTableManagementAPI.Services
                 {
                     Id = Convert.ToInt32(reader["Id"]),
                     Name = Convert.ToString(reader["Name"]),
-                    Period_No = Convert.ToString(reader["Period_No"]),
-                    Day = Convert.ToString(reader["Day"])
                 };
                 entities.Add(user);
             }

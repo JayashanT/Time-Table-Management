@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using TimeTableManagementAPI.Models;
 using TimeTableManagementAPI.Repository;
 using TimeTableManagementAPI.Services;
+using TimeTableManagementAPI.Utility;
 
 namespace TimeTableManagementAPI.Controllers
 {
@@ -17,11 +19,13 @@ namespace TimeTableManagementAPI.Controllers
         ICommonRepository<Time_Table> _timeTableRepo;
         ITimeTableServices _timeTableServices;
         ICommonRepository<Slot> _slotRepo;
+        DBContext _dBContext;
         public TimeTableController(ICommonRepository<Time_Table> timeTableRepo,ITimeTableServices timeTableServices, ICommonRepository<Slot> slotRepo)
         {
             _timeTableRepo = timeTableRepo;
             _timeTableServices = timeTableServices;
             _slotRepo = slotRepo;
+            _dBContext = new DBContext();
         }
 
         public IActionResult GetAllTimeTables()

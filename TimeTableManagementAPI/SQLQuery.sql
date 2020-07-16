@@ -97,6 +97,13 @@ CREATE TABLE [Resource] (
 INSERT INTO Resource VALUES('Sience lab 1','Academic') 
 INSERT INTO Resource VALUES('Computer lab 1','Academic') 
 INSERT INTO Resource VALUES('BasketBall','Sport') 
+INSERT INTO Resource VALUES(0,'Default','Default') 
+
+SET IDENTITY_INSERT Resource ON
+GO
+INSERT INTO Resource VALUES(0,'Default','Default') 
+GO
+SET IDENTITY_INSERT Resource OFF
 
 CREATE TABLE [Slot] (
     [Id] INT IDENTITY (1, 1) NOT NULL,
@@ -282,3 +289,4 @@ select * from Teacher_Subject where Subject_Id=2
 select * from users u inner join slot s on u.Id = s.Teacher_Id left join Teacher_Subject t on u.Id = t.Teacher_Id WHERE T.Subject_Id = 2
 
 select * from slot where id=6
+Select * from Slot where Time_Table_Id=2
