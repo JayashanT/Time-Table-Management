@@ -8,9 +8,9 @@ namespace TimeTableManagementAPI.Services
     public interface ITimeTableServices
     {
         object Add(Time_Table timeTable);
-        string CreateAPeriodSlot(Slot slot);
+        object CreateAPeriodSlot(Slot slot);
         IEnumerable<AvailableTeachers> GetAllTeachersAvailableForSlotForASubject(string PeriodNo, int SubjectId);
-        bool Update(Time_Table time_Table);
+        object Update(Time_Table time_Table);
         Object GetTimeTableDetails(int Id);
     }
 }

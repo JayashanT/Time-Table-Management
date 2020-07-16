@@ -22,9 +22,19 @@ namespace TimeTableManagementAPI.Services
             _dBContext = new DBContext();
         }
 
-        public bool Add(Users user)
+        public object Add(Users user)
         {
             var password = Encrypt(user.Password, key);
+            string checkStaffId = "Select Staff_Id from Users where Staff_Id=@Staff_Id";
+            SqlCommand StaffIdCommand = new SqlCommand(checkStaffId, _dBContext.MainConnection);
+            StaffIdCommand.Parameters.AddWithValue("@Staff_Id", user.Staff_Id);
+
+            SqlDataReader reader = StaffIdCommand.ExecuteReader();
+
+            if (reader.HasRows)
+            {
+                return "Staff Id already available";
+            }
             string InsertCommand = "INSERT INTO Users (Name,Staff_Id,Contact_No,Password,Role_Id) VALUES(@Name,@Staff_Id,@Contact_No,@Password,@Role_Id)";
             try
             {
@@ -113,7 +123,7 @@ namespace TimeTableManagementAPI.Services
 
 
 
-        public bool UpdateUser(Users user)
+        public object UpdateUser(Users user)
         {
             string InsertCommand = "UPDATE Users SET Name=@Name,Staff_Id=@Staff_Id,Contact_No=@Contact_No,Password=@Password,Role_Id=@Role_Id WHERE Id=" + user.Id;
             try

@@ -39,22 +39,22 @@ namespace TimeTableAPI.Controllers
         [HttpPost]
         public IActionResult Add([FromBody]Users user)
         {
-            var result = _userServices.Add(user);
-            if (result)
-                return Ok(result);
+            var Result = _userServices.Add(user);
+            if (Result.GetType() == typeof(Users))
+                return Ok(Result);
             else
-                return BadRequest(result);
+                return BadRequest(Result);
 
         }
 
         [HttpPut]
         public IActionResult Update([FromBody]Users user)
         {
-            var result = _userServices.UpdateUser(user);
-            if (result)
-                return Ok(result);
+            var Result = _userServices.Add(user);
+            if (Result.GetType() == typeof(Users))
+                return Ok(Result);
             else
-                return BadRequest(result);
+                return BadRequest(Result);
         }
     }
 }

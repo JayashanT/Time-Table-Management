@@ -36,20 +36,33 @@ namespace TimeTableManagementAPI.Services
                 return ("Time Table already Available For Class");
             }
 
-            string InsertCommand = "INSERT INTO Time_Table (Name,Grade,Admin_Id,Class_Id) VALUES(@Name,@Grade,@Admin_Id,@Class_Id)";
+           // string InsertCommand = "INSERT INTO Time_Table (Name,Grade,Admin_Id,Class_Id) output INSERTED.Id VALUES(@Name,@Grade,@Admin_Id,@Class_Id)";
             try
             {
-                SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection);
-                insertCommand.Parameters.AddWithValue("@Name", timeTable.Name);
-                insertCommand.Parameters.AddWithValue("@Grade", timeTable.Grade);
-                insertCommand.Parameters.AddWithValue("@Admin_Id", timeTable.Admin_Id);
-                insertCommand.Parameters.AddWithValue("@Class_Id", timeTable.Class_Id);
+                using (SqlCommand insertCommand = new SqlCommand("INSERT INTO Time_Table(Name, Grade, Admin_Id, Class_Id) output inserted.Id VALUES(@Name, @Grade, @Admin_Id, @Class_Id)", _dBContext.MainConnection))
+                {
+                    insertCommand.Parameters.AddWithValue("@Name", timeTable.Name);
+                    insertCommand.Parameters.AddWithValue("@Grade", timeTable.Grade);
+                    insertCommand.Parameters.AddWithValue("@Admin_Id", timeTable.Admin_Id);
+                    insertCommand.Parameters.AddWithValue("@Class_Id", timeTable.Class_Id);
 
-                var result = insertCommand.ExecuteNonQuery();
-                if (result > 0)
-                    return "true";
-                else
-                    return false;
+                    int Id = (int)insertCommand.ExecuteScalar();
+                    if (Id > 0)
+                    {
+                        Time_Table time_Table = new Time_Table()
+                        {
+                            Id=Id,
+                            Name=timeTable.Name,
+                            Grade=timeTable.Grade,
+                            Admin_Id=timeTable.Grade,
+                            Class_Id=timeTable.Class_Id
+                        };
+                        return (time_Table);
+                    }
+                    else
+                        return false;
+                }
+                
             }
             catch (Exception e)
             {
@@ -58,22 +71,35 @@ namespace TimeTableManagementAPI.Services
             }
         }
 
-        public bool Update(Time_Table time_Table)
+        public object Update(Time_Table time_Table)
         {
             string InsertCommand = "UPDATE Time_Table SET Name=@Name,Grade=@Grade,Admin_Id=@Admin_Id,Class_Id=@Class_Id WHERE Id=" + time_Table.Id;
             try
             {
-                SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection);
-                insertCommand.Parameters.AddWithValue("@Name", time_Table.Name);
-                insertCommand.Parameters.AddWithValue("@Grade", time_Table.Grade);
-                insertCommand.Parameters.AddWithValue("@Admin_Id", time_Table.Admin_Id);
-                insertCommand.Parameters.AddWithValue("@Class_Id", time_Table.Class_Id);
+                using (SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection))
+                {
+                    insertCommand.Parameters.AddWithValue("@Name", time_Table.Name);
+                    insertCommand.Parameters.AddWithValue("@Grade", time_Table.Grade);
+                    insertCommand.Parameters.AddWithValue("@Admin_Id", time_Table.Admin_Id);
+                    insertCommand.Parameters.AddWithValue("@Class_Id", time_Table.Class_Id);
 
-                var result = insertCommand.ExecuteNonQuery();
-                if (result > 0)
-                    return true;
-                else
-                    return false;
+                    int Id = (int)insertCommand.ExecuteScalar();
+                    if (Id > 0)
+                    {
+                        Time_Table timeTable = new Time_Table()
+                        {
+                            Id = Id,
+                            Name = time_Table.Name,
+                            Grade = time_Table.Grade,
+                            Admin_Id = time_Table.Grade,
+                            Class_Id = time_Table.Class_Id
+                        };
+                        return (timeTable);
+                    }
+                    else
+                        return "Time Table Update Not done";
+                }
+               
             }
             catch (Exception e)
             {
@@ -82,7 +108,7 @@ namespace TimeTableManagementAPI.Services
             }
         }
 
-        public string CreateAPeriodSlot(Slot slot)
+        public Object CreateAPeriodSlot(Slot slot)
         {
             string checkCommand = "select * from slot where Teacher_id=@Teacher_Id AND Day like @Day AND Period_No=@Period_No";
             SqlCommand CheckAvailablility = new SqlCommand(checkCommand, _dBContext.MainConnection);
@@ -110,25 +136,42 @@ namespace TimeTableManagementAPI.Services
                 return "Slot Already Allocated";
             }
 
-            string InsertCommand = "INSERT INTO Users (Day,Stat_Time,End_Time,Period_No,Time_Table_Id,Resource_Id,Teacher_Id,Subject_Id) " +
-                "VALUES(@Day,@Stat_Time,@End_Time,@Period_No,@Time_Table_Id,@Resource_Id,@Teacher_Id,@Subject_Id)";
+            string InsertCommand = "INSERT INTO Users (Day,Start_Time,End_Time,Period_No,Time_Table_Id,Resource_Id,Teacher_Id,Subject_Id) " +
+                "VALUES(@Day,@Start_Time,@End_Time,@Period_No,@Time_Table_Id,@Resource_Id,@Teacher_Id,@Subject_Id)";
             try
             {
-                SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection);
-                insertCommand.Parameters.AddWithValue("@Day", slot.Day);
-                insertCommand.Parameters.AddWithValue("@Stat_Time", slot.Start_Time);
-                insertCommand.Parameters.AddWithValue("@End_Time", slot.End_Time);
-                insertCommand.Parameters.AddWithValue("@Period_No", slot.Period_No);
-                insertCommand.Parameters.AddWithValue("@Time_Table_Id", slot.Time_Table_Id);
-                insertCommand.Parameters.AddWithValue("@Resource_Id", slot.Resource_Id);
-                insertCommand.Parameters.AddWithValue("@Teacher_Id", slot.Teacher_Id);
-                insertCommand.Parameters.AddWithValue("@Subject_Id", slot.Subject_Id);
+                using (SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection))
+                {
+                    insertCommand.Parameters.AddWithValue("@Day", slot.Day);
+                    insertCommand.Parameters.AddWithValue("@Start_Time", slot.Start_Time);
+                    insertCommand.Parameters.AddWithValue("@End_Time", slot.End_Time);
+                    insertCommand.Parameters.AddWithValue("@Period_No", slot.Period_No);
+                    insertCommand.Parameters.AddWithValue("@Time_Table_Id", slot.Time_Table_Id);
+                    insertCommand.Parameters.AddWithValue("@Resource_Id", slot.Resource_Id);
+                    insertCommand.Parameters.AddWithValue("@Teacher_Id", slot.Teacher_Id);
+                    insertCommand.Parameters.AddWithValue("@Subject_Id", slot.Subject_Id);
 
-                var result = insertCommand.ExecuteNonQuery();
-                if (result > 0)
-                    return "Slot Saved.";
-                else
-                    return "Error in Saving";
+                    int Id = (int)insertCommand.ExecuteScalar();
+                    if (Id > 0)
+                    {
+                        Slot Outslot = new Slot()
+                        {
+                            Id=Id,
+                            Day=slot.Day,
+                            Start_Time=slot.Start_Time,
+                            End_Time=slot.End_Time,
+                            Period_No=slot.Period_No,
+                            Time_Table_Id=slot.Time_Table_Id,
+                            Resource_Id=slot.Resource_Id,
+                            Teacher_Id=slot.Teacher_Id,
+                            Subject_Id=slot.Subject_Id
+                        };
+                        return Outslot;
+                    }
+                    else
+                        return "Error in Slot Creation";
+                }
+                
             }
             catch (Exception e)
             {

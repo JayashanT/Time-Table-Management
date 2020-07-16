@@ -42,10 +42,21 @@ namespace TimeTableManagementAPI.Controllers
         public IActionResult CreateATimeTable(Time_Table time_Table)
         {
             var Result = _timeTableServices.Add(time_Table);
-            if (Result=="true")
-                return Ok("Time Table Created");
+            if (Result.GetType()==typeof(Time_Table))
+                return Ok(Result);
             else
                return BadRequest(Result);
+        }
+
+        [HttpPut]
+        public IActionResult UpdateATimeTable([FromBody]Time_Table time_Table)
+        {
+            var Result = _timeTableServices.Add(time_Table);
+            if (Result.GetType() == typeof(Time_Table))
+                return Ok(Result);
+            else
+                return BadRequest(Result);
+
         }
 
         [HttpPost]
@@ -67,17 +78,6 @@ namespace TimeTableManagementAPI.Controllers
                 return Ok();
             else
                 return BadRequest("Record not deleted");
-        }
-
-        [HttpPut]
-        public IActionResult UpdateATimeTable([FromBody]Time_Table time_Table)
-        {
-            var Result = _timeTableServices.Update(time_Table);
-            if (Result)
-                return Ok("Time Table Updated");
-            else
-                return BadRequest("Time Table Updated");
-            
         }
 
         [Route("GetAvailableTeachers")]
