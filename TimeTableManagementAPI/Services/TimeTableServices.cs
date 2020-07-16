@@ -140,8 +140,8 @@ namespace TimeTableManagementAPI.Services
         public IEnumerable<AvailableTeachers> GetAllTeachersAvailableForSlotForASubject(string PeriodNo, int SubjectId)
         {
             DataTable dt = new DataTable();
-            string AvailablityTeachers = "select distinct u.id,u.name from users u left join slot s on u.Id = s.Teacher_Id " +
-                "left join Teacher_Subject t on u.Id = t.Teacher_Id WHERE t.Subject_Id = 2 AND u.Role_Id != 1";
+            string AvailablityTeachers = "select distinct u.Id,u.Name,s.Period_No from users u left join slot s on u.Id = s.Teacher_Id " +
+                "left join Teacher_Subject t on u.Id = t.Teacher_Id WHERE t.Subject_Id = @Subject_Id ";
             SqlCommand QueryCommand = new SqlCommand(AvailablityTeachers, _dBContext.MainConnection);
             QueryCommand.Parameters.AddWithValue("@Subject_Id", SubjectId);
 
@@ -153,14 +153,17 @@ namespace TimeTableManagementAPI.Services
                 {
                     Id = Convert.ToInt32(reader["Id"]),
                     Name = Convert.ToString(reader["Name"]),
+                    Period_No = Convert.ToString(reader["Period_No"]),
                 };
                 entities.Add(user);
             }
-            foreach (var entry in entities)
+            foreach (var entry in entities.ToList())
             {
                 if (entry.Period_No == PeriodNo)
                 {
-                        entities.Remove(entry);
+                    foreach (var user in entities.ToList()) 
+                        if(user.Id==entry.Id)
+                            entities.Remove(user);
                 }
             }
             return entities;
