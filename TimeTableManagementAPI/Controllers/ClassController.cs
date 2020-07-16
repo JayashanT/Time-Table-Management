@@ -39,12 +39,12 @@ namespace TimeTableManagementAPI.Controllers
         [HttpPost]
         public IActionResult Add([FromBody]Class classData)
         {
-            string InsertCommand = "INSERT INTO Users (Name,Grade) VALUES(@Name,@Grade)";
+            string InsertCommand = "INSERT INTO Class (Name,Grade) VALUES(@Name,@Grade)";
             try
             {
                 SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection);
                 insertCommand.Parameters.AddWithValue("@Name", classData.Name);
-                insertCommand.Parameters.AddWithValue("@Staff_Id", classData.Grade);
+                insertCommand.Parameters.AddWithValue("@Grade", classData.Grade);
 
                 var result = insertCommand.ExecuteNonQuery();
                 if (result > 0)
@@ -58,6 +58,15 @@ namespace TimeTableManagementAPI.Controllers
                 return BadRequest();
             }
 
+        }
+
+        public IActionResult GetAllClassesOfAGrade(int grade)
+        {
+            var Result = _classRepository.GetByOneParameter("Class", "Grade", Convert.ToString(grade));
+            if (Result!=null)
+                return Ok(Result);
+            else
+                return BadRequest("No Classes found");
         }
     }
 }

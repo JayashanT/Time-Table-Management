@@ -9,8 +9,8 @@ namespace TimeTableManagementAPI.Models
     {
         public int Id { get; set; }
         public string Day { get; set; }
-        public DateTime Start_Time { get; set; }
-        public DateTime End_Time { get; set; }
+        public TimeSpan Start_Time { get; set; }
+        public TimeSpan End_Time { get; set; }
         public string Period_No { get; set; }
         public int Time_Table_Id { get; set; }
         public int Resource_Id { get; set; }
