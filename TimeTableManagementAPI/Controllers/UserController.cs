@@ -56,5 +56,22 @@ namespace TimeTableAPI.Controllers
             else
                 return BadRequest(Result);
         }
+
+        [HttpPost]
+        [Route("Login")]
+        public IActionResult Login([FromBody]Users login)
+        {
+            IActionResult response = Unauthorized();
+            var user = _userServices.AuthenticateUser(login);
+
+            if (user != null)
+            {
+                var tokenString = _userServices.GenerateJSONWebToken(user);
+                response = Ok(new { token = tokenString });
+            }
+            else
+                response = BadRequest("Password or Staff id incorrect");
+            return response;
+        }
     }
 }
