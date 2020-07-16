@@ -171,11 +171,11 @@ namespace TimeTableManagementAPI.Services
 
         public Object GetTimeTableDetails(int Id)
         {
-            var Result=_timetableRepo.GetById("Time_Table",Id);
+            var TableDetails=_timetableRepo.GetById("Time_Table",Id);
             var AllSlotsOFATimeTable = _slotRepo.GetByOneParameter("Slot", "Time_Table_Id", Convert.ToString(Id));
             return new
             {
-                Result,
+                TableDetails,
                 AllSlotsOFATimeTable
             };
 
