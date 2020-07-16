@@ -60,6 +60,7 @@ namespace TimeTableManagementAPI.Controllers
 
         }
 
+        [Route("GetClassesRelateToGrade/{id}")]
         public IActionResult GetAllClassesOfAGrade(int grade)
         {
             var Result = _classRepository.GetByOneParameter("Class", "Grade", Convert.ToString(grade));
