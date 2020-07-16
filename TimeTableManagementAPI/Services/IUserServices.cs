@@ -8,5 +8,7 @@ namespace TimeTableManagementAPI.Services
         string Decrypt(string password, string keyString);
         string Encrypt(string password, string keyString);
         object UpdateUser(Users user);
+        Users AuthenticateUser(Users login);
+        string GenerateJSONWebToken(Users userInfo);
     }
 }
