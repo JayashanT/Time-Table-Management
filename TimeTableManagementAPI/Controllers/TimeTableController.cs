@@ -9,6 +9,7 @@ using TimeTableManagementAPI.Models;
 using TimeTableManagementAPI.Repository;
 using TimeTableManagementAPI.Services;
 using TimeTableManagementAPI.Utility;
+using TimeTableManagementAPI.VM;
 
 namespace TimeTableManagementAPI.Controllers
 {
@@ -75,7 +76,7 @@ namespace TimeTableManagementAPI.Controllers
         {
             var result=_timeTableRepo.DeleteRecord("Time_Table",Id);
             if(result)
-                return Ok();
+                return Ok("Time Table Successfully deleted");
             else
                 return BadRequest("Record not deleted");
         }
@@ -84,26 +85,42 @@ namespace TimeTableManagementAPI.Controllers
         public IActionResult GetAllTeachersAvailableForSlotForASubject(string PeriodNo,int SubjectId)
         {
 
-            return Ok(_timeTableServices.GetAllTeachersAvailableForSlotForASubject(PeriodNo, SubjectId));
+            var Result=_timeTableServices.GetAllTeachersAvailableForSlotForASubject(PeriodNo, SubjectId);
+            if (Result.GetType() == typeof(string))
+                return BadRequest(Result); 
+            else
+                return Ok(Result);
         }
 
        
         [Route("GetTimeTableDetails/{id}")]
         public IActionResult GetAllDetailsRelatedToATimeTable(int Id)
         {
-            return Ok(_timeTableServices.GetTimeTableDetails(Id));
+            var Result=_timeTableServices.GetTimeTableDetails(Id);
+            if (Result.GetType() == typeof(string))
+                return BadRequest("Time Table Not FOund");
+            else
+                return Ok(Result);
         }
 
         [Route("GetTimeTableDetailsByClassId/{id}")]
         public IActionResult GetTimeTableDetailsByClassId(int Id)
         {
-            return Ok(_timeTableServices.GetDetailsOfATimeTableByClassId(Id));
+            var Result = _timeTableServices.GetDetailsOfATimeTableByClassId(Id);
+            if (Result.GetType() == typeof(string))
+                return BadRequest("Time Table Not FOund");
+            else
+                return Ok(Result);
         }
 
         [Route("getASlotById/{id}")]
         public IActionResult getASlotById(int Id)
         {
-            return Ok(_slotRepo.GetById("Slot",Id));
+            var Result = _slotRepo.GetById("Slot", Id);
+            if (Result != null)
+                return Ok(Result);
+            else
+                return BadRequest("Slot not found");
         }
 
 

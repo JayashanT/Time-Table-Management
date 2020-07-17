@@ -168,7 +168,7 @@ namespace TimeTableManagementAPI.Services
             }
         }
 
-        public IEnumerable<AvailableTeachers> GetAllTeachersAvailableForSlotForASubject(string PeriodNo, int SubjectId)
+        public object GetAllTeachersAvailableForSlotForASubject(string PeriodNo, int SubjectId)
         {
             DataTable dt = new DataTable();
             string AvailablityTeachers = "select distinct u.Id,u.Name,s.Period_No from users u left join slot s on u.Id = s.Teacher_Id " +
@@ -199,12 +199,17 @@ namespace TimeTableManagementAPI.Services
                 }
             }
             var result=entities.GroupBy(X => X.Id).Select(x=>x.First());
-            return result;
+            if (!result.Any())
+                return ("No Teachers available");
+            else
+                return result;
         }
 
         public Object GetTimeTableDetails(int Id)
         {
             var TableDetails=_timetableRepo.GetById("Time_Table",Id);
+            if (TableDetails == null)
+                return ("Time Table Not Found");
             var AllSlotsOFATimeTable = _slotRepo.GetByOneParameter("Slot", "Time_Table_Id", Convert.ToString(Id));
             return new
             {
@@ -217,7 +222,9 @@ namespace TimeTableManagementAPI.Services
         public object GetDetailsOfATimeTableByClassId(int ClassId)
         {
             var TimeTableDetails = _timetableRepo.GetByOneParameter("Time_Table", "Class_Id", Convert.ToString(ClassId));
-            
+            if (TimeTableDetails == null)
+                return ("Time Table Not Found");
+
             string checkSlot = "select Id from Time_Table where Class_Id=@Class_Id";
             SqlCommand checkSlotCommand = new SqlCommand(checkSlot, _dBContext.MainConnection);
             checkSlotCommand.Parameters.AddWithValue("@Class_Id", ClassId);

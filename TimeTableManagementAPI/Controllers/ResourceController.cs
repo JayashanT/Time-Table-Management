@@ -10,7 +10,7 @@ using TimeTableManagementAPI.Utility;
 
 namespace TimeTableManagementAPI.Controllers
 {
-    public class ResourceController:Controller
+    public class ResourceController : Controller
     {
         DBContext _dBContext;
         ICommonRepository<Resource> _resourceRepo;
@@ -23,18 +23,23 @@ namespace TimeTableManagementAPI.Controllers
         [HttpPost]
         public IActionResult AddResource([FromBody]Resource resource)
         {
-            string InsertCommand = "INSERT INTO Resource (Name,Type) VALUES(@Name,@Type)";
+            string InsertCommand = "INSERT INTO Resource (Name,Type) output INSERTED.Id VALUES(@Name,@Type)";
             try
             {
-                SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection);
-                insertCommand.Parameters.AddWithValue("@Name", resource.Name);
-                insertCommand.Parameters.AddWithValue("@Type", resource.Type);
+                using (SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection))
+                {
+                    insertCommand.Parameters.AddWithValue("@Name", resource.Name);
+                    insertCommand.Parameters.AddWithValue("@Type", resource.Type);
 
-                var result = insertCommand.ExecuteNonQuery();
-                if (result > 0)
-                    return Ok();
-                else
-                    return BadRequest();
+                    int result = (int)insertCommand.ExecuteScalar();
+                    if (result > 0)
+                    {
+                        resource.Id = result;
+                        return Ok(resource);
+                    }
+                    else
+                        return BadRequest("Resource add failed");
+                }
             }
             catch (Exception e)
             {
@@ -45,19 +50,23 @@ namespace TimeTableManagementAPI.Controllers
 
         public IActionResult UpdateResource([FromBody]Resource resource)
         {
-            string InsertCommand = "UPDATE Users SET Name=@Name,Type=@Type WHERE Id=@Id";
+            string InsertCommand = "UPDATE Resource SET Name=@Name,Type=@Type WHERE Id=@Id";
             try
             {
-                SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection);
-                insertCommand.Parameters.AddWithValue("@Name", resource.Name);
-                insertCommand.Parameters.AddWithValue("@Type", resource.Type);
-                insertCommand.Parameters.AddWithValue("@Id", resource.Id);
+                using (SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection))
+                {
+                    insertCommand.Parameters.AddWithValue("@Name", resource.Name);
+                    insertCommand.Parameters.AddWithValue("@Type", resource.Type);
+                    insertCommand.Parameters.AddWithValue("@Id", resource.Id);
 
-                var result = insertCommand.ExecuteNonQuery();
-                if (result > 0)
-                    return Ok();
-                else
-                    return BadRequest();
+                    var result = insertCommand.ExecuteNonQuery();
+                    if (result > 0)
+                    {
+                        return Ok(resource);
+                    }
+                    else
+                        return BadRequest("Update failed");
+                }
             }
             catch (Exception e)
             {
@@ -68,16 +77,45 @@ namespace TimeTableManagementAPI.Controllers
 
         public IActionResult GetAllResources()
         {
-            var Result=_resourceRepo.GetAll("Resource");
-            return Ok(Result);
+            var result = _resourceRepo.GetAll("Resource");
+            if (result != null)
+                return Ok(result);
+            else
+                return BadRequest("No resources Found");
         }
 
         [Route("{id}")]
         public IActionResult GetResourceById(int Id)
         {
-            var Result = _resourceRepo.GetById("Resource",Id);
-            return Ok(Result);
+            var result = _resourceRepo.GetById("Resource", Id);
+            if (result != null)
+                return Ok(result);
+            else
+                return BadRequest("No resources Found");
         }
 
+        public IActionResult GetAllAvailbleResourcesForASlot(int periodNo)
+        {
+            string AvailableResources = "SELECT distinct R.ID,R.NAME,R.Type FROM Resource R LEFT JOIN SLOT S ON R.ID=S.Resource_Id WHERE S.Period_No!=@Period_No";
+            SqlCommand QueryCommand = new SqlCommand(AvailableResources, _dBContext.MainConnection);
+            QueryCommand.Parameters.AddWithValue("@Period_No", periodNo);
+            SqlDataReader reader = QueryCommand.ExecuteReader();
+
+            List<Resource> resources = new List<Resource>();
+            while (reader.Read())
+            {
+                Resource resource = new Resource()
+                {
+                    Id = Convert.ToInt32(reader["Id"]),
+                    Name = Convert.ToString(reader["Name"]),
+                    Type= Convert.ToString(reader["Type"])
+                };
+                resources.Add(resource);
+            }
+            if (!resources.Any())
+                return Ok("No Resources Available");
+            else
+                return Ok(resources);
+        }
     }
 }

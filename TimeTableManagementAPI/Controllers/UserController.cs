@@ -33,7 +33,10 @@ namespace TimeTableAPI.Controllers
         public IActionResult GetAUserById(int Id)
         {
             var Result = _userRepository.GetById("Users",Id);
-            return Ok(Result);
+            if (Result != null)
+                return Ok(Result);
+            else
+                return BadRequest("Slot not found");
         }
 
         [HttpPost]
