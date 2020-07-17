@@ -31,15 +31,21 @@ namespace TimeTableManagementAPI.Controllers
 
         public IActionResult GetAllSubjects()
         {
-            var Result = _subjectRepository.GetAll("Subject");
-            return Ok(Result);
+            var result = _subjectRepository.GetAll("Subject");
+            if (result != null)
+                return Ok(result);
+            else
+                return BadRequest("No subjects Found");
         }
 
         [Route("{id}")]
         public IActionResult GetASubjectById(int Id)
         {
-            var Result = _subjectRepository.GetById("Subject", Id);
-            return Ok(Result);
+            var result = _subjectRepository.GetById("Subject", Id);
+            if (result != null)
+                return Ok(result);
+            else
+                return BadRequest("No subject details Found");
         }
 
         [HttpPost]
@@ -99,7 +105,10 @@ namespace TimeTableManagementAPI.Controllers
         public IActionResult GetAllSubjectsOfATeacher(int Id)
         {
             var result = _subjectTeacherRepository.GetByOneParameter("Teacher_Subject", "Teacher_Id", Convert.ToString(Id));
-            return Ok(result);
+            if (result != null)
+                return Ok(result);
+            else
+                return BadRequest("No subjects Found for teacher");
         }
 
         [HttpPost]
