@@ -108,36 +108,24 @@ namespace TimeTableManagementAPI.Services
             }
         }
 
-        public Object CreateAPeriodSlot(Slot slot)
+        public object CreateAPeriodSlot(Slot slot)
         {
-            string checkCommand = "select * from slot where Teacher_id=@Teacher_Id AND Day like @Day AND Period_No=@Period_No";
-            SqlCommand CheckAvailablility = new SqlCommand(checkCommand, _dBContext.MainConnection);
-            CheckAvailablility.Parameters.AddWithValue("@Teacher_Id", slot.Teacher_Id);
-            CheckAvailablility.Parameters.AddWithValue("@Day", slot.Day);
-            CheckAvailablility.Parameters.AddWithValue("@Period_No", slot.Period_No);
-
-            SqlDataReader reader = CheckAvailablility.ExecuteReader();
-
-            if (reader.HasRows)
-            {
-                return "Teacher is not available for this slot";
-            }
-
-            string checkSlot = "select * from slot where Time_Table_Id=@Time_Table_Id AND Day like @Day AND Period_No=@Period_No";
+            
+            string checkSlot = "select * from slot where Time_Table_Id=@Time_Table_Id AND Period_No=@Period_No1";
             SqlCommand checkSlotCommand = new SqlCommand(checkSlot, _dBContext.MainConnection);
-            CheckAvailablility.Parameters.AddWithValue("@Time_Table_Id", slot.Time_Table_Id);
-            CheckAvailablility.Parameters.AddWithValue("@Day", slot.Day);
-            CheckAvailablility.Parameters.AddWithValue("@Period_No", slot.Period_No);
+            checkSlotCommand.Parameters.AddWithValue("@Time_Table_Id", slot.Time_Table_Id);
+            checkSlotCommand.Parameters.AddWithValue("@Period_No1", slot.Period_No);
 
-            SqlDataReader checkSlotReader = CheckAvailablility.ExecuteReader();
+            SqlDataReader checkSlotReader = checkSlotCommand.ExecuteReader();
 
             if (checkSlotReader.HasRows)
             {
                 return "Slot Already Allocated";
             }
+            checkSlotReader.Close();
 
-            string InsertCommand = "INSERT INTO Users (Day,Start_Time,End_Time,Period_No,Time_Table_Id,Resource_Id,Teacher_Id,Subject_Id) " +
-                "VALUES(@Day,@Start_Time,@End_Time,@Period_No,@Time_Table_Id,@Resource_Id,@Teacher_Id,@Subject_Id)";
+            string InsertCommand = "INSERT INTO Slot (Day,Start_Time,End_Time,Period_No,Time_Table_Id,Resource_Id,Teacher_Id,Subject_Id) " +
+                "output INSERTED.Id VALUES(@Day,@Start_Time,@End_Time,@Period_No,@Time_Table_Id,@Resource_Id,@Teacher_Id,@Subject_Id)";
             try
             {
                 using (SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection))
@@ -166,7 +154,7 @@ namespace TimeTableManagementAPI.Services
                             Teacher_Id=slot.Teacher_Id,
                             Subject_Id=slot.Subject_Id
                         };
-                        return Outslot;
+                        return (Outslot);
                     }
                     else
                         return "Error in Slot Creation";
