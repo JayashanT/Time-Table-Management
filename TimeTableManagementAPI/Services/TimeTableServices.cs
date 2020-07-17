@@ -213,5 +213,25 @@ namespace TimeTableManagementAPI.Services
             };
 
         }
+
+        public object GetDetailsOfATimeTableByClassId(int ClassId)
+        {
+            var TimeTableDetails = _timetableRepo.GetByOneParameter("Time_Table", "Class_Id", Convert.ToString(ClassId));
+            
+            string checkSlot = "select Id from Time_Table where Class_Id=@Class_Id";
+            SqlCommand checkSlotCommand = new SqlCommand(checkSlot, _dBContext.MainConnection);
+            checkSlotCommand.Parameters.AddWithValue("@Class_Id", ClassId);
+
+            SqlDataReader checkSlotReader = checkSlotCommand.ExecuteReader();
+            checkSlotReader.Read();
+            var AllSlotsOFATimeTable = _slotRepo.GetByOneParameter("Slot", "Time_Table_Id", Convert.ToString(checkSlotReader["Id"]));
+
+            return new
+            {
+                TimeTableDetails,
+                AllSlotsOFATimeTable
+            };
+
+        }
     }    
 }

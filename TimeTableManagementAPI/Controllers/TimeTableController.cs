@@ -94,6 +94,12 @@ namespace TimeTableManagementAPI.Controllers
             return Ok(_timeTableServices.GetTimeTableDetails(Id));
         }
 
+        [Route("GetTimeTableDetailsByClassId/{id}")]
+        public IActionResult GetTimeTableDetailsByClassId(int Id)
+        {
+            return Ok(_timeTableServices.GetDetailsOfATimeTableByClassId(Id));
+        }
+
         [Route("getASlotById/{id}")]
         public IActionResult getASlotById(int Id)
         {

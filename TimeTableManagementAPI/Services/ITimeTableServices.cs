@@ -12,5 +12,6 @@ namespace TimeTableManagementAPI.Services
         IEnumerable<AvailableTeachers> GetAllTeachersAvailableForSlotForASubject(string PeriodNo, int SubjectId);
         object Update(Time_Table time_Table);
         Object GetTimeTableDetails(int Id);
+        object GetDetailsOfATimeTableByClassId(int ClassId);
     }
 }
