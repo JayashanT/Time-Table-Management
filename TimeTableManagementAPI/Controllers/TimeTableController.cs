@@ -39,7 +39,7 @@ namespace TimeTableManagementAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateATimeTable(Time_Table time_Table)
+        public IActionResult CreateATimeTable([FromBody]Time_Table time_Table)
         {
             var Result = _timeTableServices.Add(time_Table);
             if (Result.GetType()==typeof(Time_Table))
@@ -61,13 +61,13 @@ namespace TimeTableManagementAPI.Controllers
 
         [HttpPost]
         [Route("AddSlot")]
-        public IActionResult CreateATimeTableSlot(Slot slot)
+        public IActionResult CreateATimeTableSlot([FromBody]Slot slot)
         {
             var Result = _timeTableServices.CreateAPeriodSlot(slot);
-            if (Result == "Teacher is not available for this slot")
-                return BadRequest("Teacher is not available for this slot");
+            if (Result.GetType() == typeof(Slot))
+                return Ok(Result);
             else
-                return Ok("Slot Created");
+                return BadRequest(Result);
         }
 
         [HttpDelete]
