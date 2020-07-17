@@ -195,9 +195,11 @@ namespace TimeTableManagementAPI.Services
                     foreach (var user in entities.ToList()) 
                         if(user.Id==entry.Id)
                             entities.Remove(user);
+
                 }
             }
-            return entities;
+            var result=entities.GroupBy(X => X.Id).Select(x=>x.First());
+            return result;
         }
 
         public Object GetTimeTableDetails(int Id)

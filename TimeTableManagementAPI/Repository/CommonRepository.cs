@@ -98,12 +98,8 @@ namespace TimeTableManagementAPI.Repository
                         TEntity item = GetItem<TEntity>(record);
                         entities.Add(item);
                     }
-
                 }
-
                 return entities;
-
-
             }
             catch (Exception e)
             {
