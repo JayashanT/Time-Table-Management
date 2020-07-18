@@ -170,7 +170,7 @@ namespace TimeTableManagementAPI.Services
 
         public object GetAllTeachersAvailableForSlotForASubject(string PeriodNo, int SubjectId)
         {
-            DataTable dt = new DataTable();
+           // DataTable dt = new DataTable();
             string AvailablityTeachers = "select distinct u.Id,u.Name,s.Period_No from users u left join slot s on u.Id = s.Teacher_Id " +
                 "left join Teacher_Subject t on u.Id = t.Teacher_Id WHERE t.Subject_Id = @Subject_Id ";
             SqlCommand QueryCommand = new SqlCommand(AvailablityTeachers, _dBContext.MainConnection);
@@ -211,19 +211,44 @@ namespace TimeTableManagementAPI.Services
             if (TableDetails == null)
                 return ("Time Table Not Found");
             var AllSlotsOFATimeTable = _slotRepo.GetByOneParameter("Slot", "Time_Table_Id", Convert.ToString(Id));
-            return new
+            TableData td = new TableData()
             {
-                TableDetails,
-                AllSlotsOFATimeTable
+                Id = TableDetails.Id,
+                Name = TableDetails.Name,
+                Grade = TableDetails.Grade,
+                Admin_Id = TableDetails.Admin_Id,
+                slot = new List<Slot>()
+               
             };
+            foreach (var singleSlot in AllSlotsOFATimeTable)
+                td.slot.Add(singleSlot);
+
+            return td;
 
         }
 
         public object GetDetailsOfATimeTableByClassId(int ClassId)
         {
-            var TimeTableDetails = _timetableRepo.GetByOneParameter("Time_Table", "Class_Id", Convert.ToString(ClassId));
-            if (TimeTableDetails == null)
+            //var TimeTableDetails = _timetableRepo.GetByOneParameter("Time_Table", "Class_Id", Convert.ToString(ClassId));
+            
+
+            string TimeTableDetails = "select * from Time_Table where Class_Id=@ClassId ";
+            SqlCommand QueryCommand = new SqlCommand(TimeTableDetails, _dBContext.MainConnection);
+            QueryCommand.Parameters.AddWithValue("@ClassId", ClassId);
+
+            SqlDataReader reader = QueryCommand.ExecuteReader();
+            reader.Read();
+            if (!reader.HasRows)
                 return ("Time Table Not Found");
+            Time_Table time_Table = new Time_Table()
+            {
+                Id=Convert.ToInt32(reader["Id"]),
+                Name=Convert.ToString(reader["Name"]),
+                Grade=Convert.ToInt32(reader["Grade"]),
+                Admin_Id=Convert.ToInt32(reader["Admin_Id"]),
+                Class_Id=ClassId
+            };
+            reader.Close();
 
             string checkSlot = "select Id from Time_Table where Class_Id=@Class_Id";
             SqlCommand checkSlotCommand = new SqlCommand(checkSlot, _dBContext.MainConnection);
@@ -233,11 +258,19 @@ namespace TimeTableManagementAPI.Services
             checkSlotReader.Read();
             var AllSlotsOFATimeTable = _slotRepo.GetByOneParameter("Slot", "Time_Table_Id", Convert.ToString(checkSlotReader["Id"]));
 
-            return new
+            TableData td = new TableData()
             {
-                TimeTableDetails,
-                AllSlotsOFATimeTable
+                Id = time_Table.Id,
+                Name = time_Table.Name,
+                Grade = time_Table.Grade,
+                Admin_Id = time_Table.Admin_Id,
+                slot = new List<Slot>()
+
             };
+            foreach (var singleSlot in AllSlotsOFATimeTable)
+                td.slot.Add(singleSlot);
+
+            return td;
 
         }
     }    
