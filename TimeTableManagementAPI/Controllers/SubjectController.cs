@@ -48,6 +48,16 @@ namespace TimeTableManagementAPI.Controllers
                 return BadRequest("No subject details Found");
         }
 
+        [HttpDelete]
+        public IActionResult DeleteSubject(int Id)
+        {
+            var Result = _subjectRepository.DeleteRecord("Subject", Id);
+            if (Result)
+                return Ok("Subject Deleted");
+            else
+                return BadRequest("Something went wrong");
+        }
+
         [HttpPost]
         public IActionResult Add([FromBody]Subject subject)
         {
