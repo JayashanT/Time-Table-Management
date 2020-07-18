@@ -52,7 +52,7 @@ namespace TimeTableManagementAPI.Repository
             
         }
 
-        public IEnumerable<TEntity> GetById(string table,int Id)
+        public TEntity GetById(string table,int Id)
         {
             try {
                 DataTable dt = new DataTable();
@@ -61,15 +61,16 @@ namespace TimeTableManagementAPI.Repository
                 SqlDataAdapter da = new SqlDataAdapter(myCommand);
                 da.Fill(dt);
 
-                List<TEntity> entities = new List<TEntity>(dt.Rows.Count);
+                // List<TEntity> entities = new List<TEntity>(dt.Rows.Count);
+                TEntity item;
                 if (dt.Rows.Count > 0)
                 {
-                    TEntity item = GetItem<TEntity>(dt.Rows[0]);
-                    entities.Add(item);
+                    item = GetItem<TEntity>(dt.Rows[0]);
+                   // entities.Add(item);
                 }
                 else return null;
 
-                return entities;
+                return item;
 
 
             }

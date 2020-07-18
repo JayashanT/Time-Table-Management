@@ -7,7 +7,7 @@ namespace TimeTableManagementAPI.Repository
     {
         bool DeleteRecord(string table, int Id);
         IEnumerable<TEntity> GetAll(string table);
-        IEnumerable<TEntity> GetById(string table, int Id);
+        TEntity GetById(string table, int Id);
         IEnumerable<TEntity> GetByOneParameter(string table, string Name, string value);
         TEntity GetItem<T>(DataRow dr);
     }
