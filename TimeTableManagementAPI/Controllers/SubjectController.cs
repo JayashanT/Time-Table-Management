@@ -81,6 +81,29 @@ namespace TimeTableManagementAPI.Controllers
             }
         }
 
+        [HttpPut]
+        public IActionResult UpdareSubject([FromBody]Subject subject)
+        {
+            string InsertCommand = "Update Subject set Name=@Name,Medium=@Medium where Id=@Id";
+            try
+            {
+                SqlCommand updateCMD = new SqlCommand(InsertCommand, _dBContext.MainConnection);
+                updateCMD.Parameters.AddWithValue("@Name", subject.Name);
+                updateCMD.Parameters.AddWithValue("@Medium", subject.Medium);
+
+                var result = updateCMD.ExecuteNonQuery();
+                if (result > 0)
+                    return Ok(subject);
+                else
+                    return BadRequest("Update failed");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return BadRequest();
+            }
+        }
+
         [Route("GetAllTeachersForASubject/{id}")]
         public IActionResult GetAllTeachersForASubject(int Id)
         {
