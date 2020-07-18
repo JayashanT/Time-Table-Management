@@ -110,7 +110,7 @@ namespace TimeTableManagementAPI.Repository
 
         public bool DeleteRecord(string table,int Id)
         {
-            string MyCommand = "Delete * from " + table + " where Id=" + Id;
+            string MyCommand = "Delete from " + table + " where Id=" + Id;
             SqlCommand myCommand = new SqlCommand(MyCommand, _dBContext.MainConnection);
             try
             {

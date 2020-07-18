@@ -85,6 +85,7 @@ CREATE TABLE [Subject] (
 INSERT INTO Subject VALUES('Maths','English') 
 INSERT INTO Subject VALUES('Science','English') 
 INSERT INTO Subject VALUES('English','English') 
+INSERT INTO Subject VALUES('Sinhala','Sinhala') 
 
 
 CREATE TABLE [Resource] (
@@ -182,6 +183,8 @@ SELECT * FROM Slot
 SELECT * FROM Teacher_Subject
 SELECT * FROM Changes
 SELECT * FROM Attendance
+
+delete  from subject where Id=5
 
 
 
