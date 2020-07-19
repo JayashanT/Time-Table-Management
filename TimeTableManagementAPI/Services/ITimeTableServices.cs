@@ -13,5 +13,6 @@ namespace TimeTableManagementAPI.Services
         object Update(Time_Table time_Table);
         Object GetTimeTableDetails(int Id);
         object GetDetailsOfATimeTableByClassId(int ClassId);
+        object UpdatePeriodSlot(Slot slot);
     }
 }
