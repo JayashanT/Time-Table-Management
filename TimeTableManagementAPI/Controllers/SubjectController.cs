@@ -90,6 +90,7 @@ namespace TimeTableManagementAPI.Controllers
                 SqlCommand updateCMD = new SqlCommand(InsertCommand, _dBContext.MainConnection);
                 updateCMD.Parameters.AddWithValue("@Name", subject.Name);
                 updateCMD.Parameters.AddWithValue("@Medium", subject.Medium);
+                updateCMD.Parameters.AddWithValue("@Id",subject.Id);
 
                 var result = updateCMD.ExecuteNonQuery();
                 if (result > 0)

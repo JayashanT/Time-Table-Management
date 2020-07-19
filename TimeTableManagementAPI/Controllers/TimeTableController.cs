@@ -21,7 +21,7 @@ namespace TimeTableManagementAPI.Controllers
         ITimeTableServices _timeTableServices;
         ICommonRepository<Slot> _slotRepo;
         DBContext _dBContext;
-        public TimeTableController(ICommonRepository<Time_Table> timeTableRepo,ITimeTableServices timeTableServices, ICommonRepository<Slot> slotRepo)
+        public TimeTableController(ICommonRepository<Time_Table> timeTableRepo, ITimeTableServices timeTableServices, ICommonRepository<Slot> slotRepo)
         {
             _timeTableRepo = timeTableRepo;
             _timeTableServices = timeTableServices;
@@ -36,17 +36,17 @@ namespace TimeTableManagementAPI.Controllers
                 return Ok(result);
             else
                 return BadRequest("No time tables Found");
-            
+
         }
 
         [HttpPost]
         public IActionResult CreateATimeTable([FromBody]Time_Table time_Table)
         {
             var Result = _timeTableServices.Add(time_Table);
-            if (Result.GetType()==typeof(Time_Table))
+            if (Result.GetType() == typeof(Time_Table))
                 return Ok(Result);
             else
-               return BadRequest(Result);
+                return BadRequest(Result);
         }
 
         [HttpPut]
@@ -60,43 +60,28 @@ namespace TimeTableManagementAPI.Controllers
 
         }
 
-        [HttpPost]
-        [Route("AddSlot")]
-        public IActionResult CreateATimeTableSlot([FromBody]Slot slot)
-        {
-            var Result = _timeTableServices.CreateAPeriodSlot(slot);
-            if (Result.GetType() == typeof(Slot))
-                return Ok(Result);
-            else
-                return BadRequest(Result);
-        }
-
         [HttpDelete]
         public IActionResult DeleteATimeTable(int Id)
         {
-            var result=_timeTableRepo.DeleteRecord("Time_Table",Id);
-            if(result)
+            var result = _timeTableRepo.DeleteRecord("Time_Table", Id);
+            if (result)
                 return Ok("Time Table Successfully deleted");
             else
                 return BadRequest("Record not deleted");
         }
 
-        [Route("GetAvailableTeachers")]
-        public IActionResult GetAllTeachersAvailableForSlotForASubject(string PeriodNo,int SubjectId)
+        [Route("{Id}")]
+        public IActionResult GetATimeTableById(int Id)
         {
-
-            var Result=_timeTableServices.GetAllTeachersAvailableForSlotForASubject(PeriodNo, SubjectId);
-            if (Result.GetType() == typeof(string))
-                return BadRequest(Result); 
-            else
-                return Ok(Result);
+            var result = _timeTableRepo.GetById("Time_Table", Id);
+            return Ok(result);
         }
 
-       
+
         [Route("GetTimeTableDetails/{id}")]
         public IActionResult GetAllDetailsRelatedToATimeTable(int Id)
         {
-            var Result=_timeTableServices.GetTimeTableDetails(Id);
+            var Result = _timeTableServices.GetTimeTableDetails(Id);
             if (Result.GetType() == typeof(string))
                 return BadRequest("Time Table Not FOund");
             else
@@ -113,6 +98,39 @@ namespace TimeTableManagementAPI.Controllers
                 return Ok(Result);
         }
 
+        [HttpPost]
+        [Route("AddSlot")]
+        public IActionResult CreateATimeTableSlot([FromBody]Slot slot)
+        {
+            var Result = _timeTableServices.CreateAPeriodSlot(slot);
+            if (Result.GetType() == typeof(Slot))
+                return Ok(Result);
+            else
+                return BadRequest(Result);
+        }
+
+        [HttpDelete]
+        [Route("DeleteSlot/{Id}")]
+        public IActionResult DeleteSlot(int Id)
+        {
+            var result = _slotRepo.DeleteRecord("Slot", Id);
+            if (result)
+                return Ok("Slot Successfully deleted");
+            else
+                return BadRequest("Record not deleted");
+        }
+
+        [HttpPut]
+        [Route("UpdateSlot")]
+        public IActionResult UpateSlot([FromBody]Slot slot)
+        {
+            var Result = _timeTableServices.UpdatePeriodSlot(slot);
+            if (Result.GetType() == typeof(Slot))
+                return Ok(Result);
+            else
+                return BadRequest(Result);
+        }
+
         [Route("getASlotById/{id}")]
         public IActionResult getASlotById(int Id)
         {
@@ -124,5 +142,15 @@ namespace TimeTableManagementAPI.Controllers
         }
 
 
+        [Route("GetAvailableTeachers")]
+        public IActionResult GetAllTeachersAvailableForSlotForASubject(string PeriodNo,int SubjectId)
+        {
+
+            var Result=_timeTableServices.GetAllTeachersAvailableForSlotForASubject(PeriodNo, SubjectId);
+            if (Result.GetType() == typeof(string))
+                return BadRequest(Result); 
+            else
+                return Ok(Result);
+        }
     }
 }

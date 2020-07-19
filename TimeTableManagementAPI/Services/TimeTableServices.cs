@@ -168,6 +168,53 @@ namespace TimeTableManagementAPI.Services
             }
         }
 
+        public object UpdatePeriodSlot(Slot slot)
+        {
+
+            string checkSlot = "select * from slot where Id=@Id";
+            SqlCommand checkSlotCommand = new SqlCommand(checkSlot, _dBContext.MainConnection);
+            checkSlotCommand.Parameters.AddWithValue("@Id", slot.Id);
+
+            SqlDataReader checkSlotReader = checkSlotCommand.ExecuteReader();
+
+            if (!checkSlotReader.HasRows)
+            {
+                return "No Slot Available";
+            }
+            checkSlotReader.Close();
+
+            string InsertCommand = "Update SET Day=@Day,Start_Time=@Start_Time,End_Time=@End_Time,Period_No=@Period_No,Time_Table_Id=@Time_Table_Id,Resource_Id=@Resource_Id,Teacher_Id=@Teacher_Id,Subject_Id=@Subject_Id WHERE Id=@Id";
+            try
+            {
+                using (SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection))
+                {
+                    insertCommand.Parameters.AddWithValue("@Day", slot.Day);
+                    insertCommand.Parameters.AddWithValue("@Start_Time", slot.Start_Time);
+                    insertCommand.Parameters.AddWithValue("@End_Time", slot.End_Time);
+                    insertCommand.Parameters.AddWithValue("@Period_No", slot.Period_No);
+                    insertCommand.Parameters.AddWithValue("@Time_Table_Id", slot.Time_Table_Id);
+                    insertCommand.Parameters.AddWithValue("@Resource_Id", slot.Resource_Id);
+                    insertCommand.Parameters.AddWithValue("@Teacher_Id", slot.Teacher_Id);
+                    insertCommand.Parameters.AddWithValue("@Subject_Id", slot.Subject_Id);
+                    insertCommand.Parameters.AddWithValue("@Id", slot.Id);
+
+                    var Id = insertCommand.ExecuteNonQuery();
+                    if (Id > 0)
+                    { 
+                        return (slot);
+                    }
+                    else
+                        return "Error in Slot Creation";
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return "Error in Saving";
+            }
+        }
+
         public object GetAllTeachersAvailableForSlotForASubject(string PeriodNo, int SubjectId)
         {
            // DataTable dt = new DataTable();

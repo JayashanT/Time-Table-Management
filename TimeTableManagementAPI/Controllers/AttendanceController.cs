@@ -44,6 +44,7 @@ namespace TimeTableManagementAPI.Controllers
             return Ok("All attendance set to false");
         }
 
+        [HttpPut]
         public IActionResult MarkAttendance([FromBody]Attendance attendance)
         {
             try
@@ -66,5 +67,28 @@ namespace TimeTableManagementAPI.Controllers
             }
         }
 
+        public IActionResult GetAllAtendees(DateTime Date)
+        {
+            string attendQueryString = "select * from Attendance where Status=1 AND Date=@Date";
+            SqlCommand QueryCommand = new SqlCommand(attendQueryString, _dBContext.MainConnection);
+            QueryCommand.Parameters.AddWithValue("@Date", Date);
+
+            SqlDataReader reader = QueryCommand.ExecuteReader();
+
+            List<Attendance> attendances = new List<Attendance>();
+            while (reader.Read())
+            {
+                Attendance attendance = new Attendance()
+                {
+                    Id = Convert.ToInt32(reader["Id"]),
+                    User_Id=Convert.ToInt32(reader["User_Id"])
+                };
+                attendances.Add(attendance);
+            }
+            if (attendances.Any())
+                return Ok(attendances);
+            else
+                return BadRequest("Not Found any attendace");
+        }
     }
 }
