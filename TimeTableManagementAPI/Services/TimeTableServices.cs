@@ -33,9 +33,10 @@ namespace TimeTableManagementAPI.Services
             SqlDataReader reader = checkCommand.ExecuteReader();
             if (reader.HasRows)
             {
+                reader.Close();
                 return ("Time Table already Available For Class");
             }
-
+            
            // string InsertCommand = "INSERT INTO Time_Table (Name,Grade,Admin_Id,Class_Id) output INSERTED.Id VALUES(@Name,@Grade,@Admin_Id,@Class_Id)";
             try
             {
@@ -57,16 +58,21 @@ namespace TimeTableManagementAPI.Services
                             Admin_Id=timeTable.Grade,
                             Class_Id=timeTable.Class_Id
                         };
+                        _dBContext.MainConnection.Close();
                         return (time_Table);
                     }
                     else
+                    {
+                        _dBContext.MainConnection.Close();
                         return false;
+                    }
                 }
                 
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+                _dBContext.MainConnection.Close();
                 return false;
             }
         }
@@ -84,6 +90,7 @@ namespace TimeTableManagementAPI.Services
                     insertCommand.Parameters.AddWithValue("@Class_Id", time_Table.Class_Id);
 
                     int Id = (int)insertCommand.ExecuteScalar();
+                    _dBContext.MainConnection.Close();
                     if (Id > 0)
                     {
                         Time_Table timeTable = new Time_Table()
@@ -104,6 +111,7 @@ namespace TimeTableManagementAPI.Services
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+                _dBContext.MainConnection.Close();
                 return false;
             }
         }
@@ -120,9 +128,10 @@ namespace TimeTableManagementAPI.Services
 
             if (checkSlotReader.HasRows)
             {
+                checkSlotReader.Close();
                 return "Slot Already Allocated";
             }
-            checkSlotReader.Close();
+            
 
             string InsertCommand = "INSERT INTO Slot (Day,Start_Time,End_Time,Period_No,Time_Table_Id,Resource_Id,Teacher_Id,Subject_Id) " +
                 "output INSERTED.Id VALUES(@Day,@Start_Time,@End_Time,@Period_No,@Time_Table_Id,@Resource_Id,@Teacher_Id,@Subject_Id)";
@@ -140,6 +149,7 @@ namespace TimeTableManagementAPI.Services
                     insertCommand.Parameters.AddWithValue("@Subject_Id", slot.Subject_Id);
 
                     int Id = (int)insertCommand.ExecuteScalar();
+                    _dBContext.MainConnection.Close();
                     if (Id > 0)
                     {
                         Slot Outslot = new Slot()
@@ -164,6 +174,7 @@ namespace TimeTableManagementAPI.Services
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+                _dBContext.MainConnection.Close();
                 return "Error in Saving";
             }
         }
@@ -179,9 +190,10 @@ namespace TimeTableManagementAPI.Services
 
             if (!checkSlotReader.HasRows)
             {
+                checkSlotReader.Close();
                 return "No Slot Available";
             }
-            checkSlotReader.Close();
+            
 
             string InsertCommand = "Update SET Day=@Day,Start_Time=@Start_Time,End_Time=@End_Time,Period_No=@Period_No,Time_Table_Id=@Time_Table_Id,Resource_Id=@Resource_Id,Teacher_Id=@Teacher_Id,Subject_Id=@Subject_Id WHERE Id=@Id";
             try
@@ -199,6 +211,7 @@ namespace TimeTableManagementAPI.Services
                     insertCommand.Parameters.AddWithValue("@Id", slot.Id);
 
                     var Id = insertCommand.ExecuteNonQuery();
+                    _dBContext.MainConnection.Close();
                     if (Id > 0)
                     { 
                         return (slot);
@@ -211,6 +224,7 @@ namespace TimeTableManagementAPI.Services
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+                _dBContext.MainConnection.Close();
                 return "Error in Saving";
             }
         }
@@ -246,6 +260,8 @@ namespace TimeTableManagementAPI.Services
                 }
             }
             var result=entities.GroupBy(X => X.Id).Select(x=>x.First());
+            reader.Close();
+            _dBContext.MainConnection.Close();
             if (!result.Any())
                 return ("No Teachers available");
             else
@@ -286,7 +302,11 @@ namespace TimeTableManagementAPI.Services
             SqlDataReader reader = QueryCommand.ExecuteReader();
             reader.Read();
             if (!reader.HasRows)
+            {
+                reader.Close();
                 return ("Time Table Not Found");
+            }
+            reader.Close();
             Time_Table time_Table = new Time_Table()
             {
                 Id=Convert.ToInt32(reader["Id"]),
@@ -295,7 +315,7 @@ namespace TimeTableManagementAPI.Services
                 Admin_Id=Convert.ToInt32(reader["Admin_Id"]),
                 Class_Id=ClassId
             };
-            reader.Close();
+            
 
             string checkSlot = "select Id from Time_Table where Class_Id=@Class_Id";
             SqlCommand checkSlotCommand = new SqlCommand(checkSlot, _dBContext.MainConnection);

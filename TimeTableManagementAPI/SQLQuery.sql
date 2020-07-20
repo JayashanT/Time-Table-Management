@@ -138,7 +138,7 @@ INSERT INTO Slot VALUES('Monday',2,'08:45','09:30',2,2,null,4)
 INSERT INTO Slot VALUES('Monday',2,'08:45','09:30',2,2,null,3)
 INSERT INTO Slot VALUES('Monday',3,'08:45','09:30',2,2,null,6)
 
-CREATE TABLE [Changes] (
+CREATE TABLE [Updates] (
     [Id] INT IDENTITY (1, 1) NOT NULL,
     [Time] DATETIME2 NULL,
 	[Status] NVARCHAR (MAX) NULL,
@@ -153,6 +153,10 @@ CREATE TABLE [Changes] (
 );
 
 INSERT INTO Changes VALUES (GETDATE(),'NOT ACCEPT',8,3,4)
+ALTER TABLE Updates 
+add Status bit
+
+update Updates set Status=0 where id=2
 
 CREATE TABLE [Teacher_Subject] (
     [Teacher_Id] INT NOT NULL,
@@ -181,7 +185,7 @@ SELECT * FROM Subject
 SELECT * FROM Resource
 SELECT * FROM Slot
 SELECT * FROM Teacher_Subject
-SELECT * FROM Changes
+SELECT * FROM Updates
 SELECT * FROM Attendance
 
 delete  from subject where Id=5

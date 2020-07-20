@@ -47,6 +47,7 @@ namespace TimeTableManagementAPI.Controllers
                 insertCommand.Parameters.AddWithValue("@Grade", classData.Grade);
 
                 var result = insertCommand.ExecuteNonQuery();
+                _dBContext.MainConnection.Close();
                 if (result > 0)
                     return Ok();
                 else
@@ -55,6 +56,7 @@ namespace TimeTableManagementAPI.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+                _dBContext.MainConnection.Close();
                 return BadRequest();
             }
 

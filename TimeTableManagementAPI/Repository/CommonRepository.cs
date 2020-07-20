@@ -40,12 +40,13 @@ namespace TimeTableManagementAPI.Repository
                     }
                     
                 }
-
+                _dBContext.MainConnection.Close();
                 return entities;
             }
             catch(Exception e)
             {
                 Console.WriteLine(e.Message);
+                _dBContext.MainConnection.Close();
                 return null;
             }
             
@@ -65,16 +66,21 @@ namespace TimeTableManagementAPI.Repository
                 if (dt.Rows.Count > 0)
                 {
                     item = GetItem<TEntity>(dt.Rows[0]);
-                   // entities.Add(item);
+                    // entities.Add(item);
                 }
-                else return null;
-
+                else
+                {
+                    _dBContext.MainConnection.Close();
+                    return null;
+                }
+                _dBContext.MainConnection.Close();
                 return item;
 
 
             }
             catch (Exception e)
             {
+                _dBContext.MainConnection.Close();
                 Console.WriteLine(e.Message);
                 return null;
             }
@@ -99,11 +105,13 @@ namespace TimeTableManagementAPI.Repository
                         entities.Add(item);
                     }
                 }
+                _dBContext.MainConnection.Close();
                 return entities;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+                _dBContext.MainConnection.Close();
                 return null;
             }
         }
@@ -115,6 +123,7 @@ namespace TimeTableManagementAPI.Repository
             try
             {
                 var Result=myCommand.ExecuteNonQuery();
+                _dBContext.MainConnection.Close();
                 if (Result != 0)
                     return true;
                 else
@@ -123,6 +132,7 @@ namespace TimeTableManagementAPI.Repository
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+                _dBContext.MainConnection.Close();
                 return false;
             }
         }
