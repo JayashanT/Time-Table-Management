@@ -14,9 +14,9 @@ namespace TimeTableManagementAPI.Services
 {
     public class TimeTableServices : ITimeTableServices
     {
-        DBContext _dBContext;
-        ICommonRepository<Time_Table> _timetableRepo;
-        ICommonRepository<Slot> _slotRepo;
+        private DBContext _dBContext;
+        private ICommonRepository<Time_Table> _timetableRepo;
+        private ICommonRepository<Slot> _slotRepo;
         public TimeTableServices(ICommonRepository<Time_Table> timetableRepo,ICommonRepository<Slot> slotRepo)
         {
             _dBContext = new DBContext();

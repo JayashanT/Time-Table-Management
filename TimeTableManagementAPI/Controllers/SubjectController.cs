@@ -16,10 +16,10 @@ namespace TimeTableManagementAPI.Controllers
     [ApiController]
     public class SubjectController:Controller
     {
-        ICommonRepository<Subject> _subjectRepository;
-        ICommonRepository<Teacher_Subject> _subjectTeacherRepository;
-        ICommonRepository<Users> _userRepository;
-        DBContext _dBContext;
+        private ICommonRepository<Subject> _subjectRepository;
+        private ICommonRepository<Teacher_Subject> _subjectTeacherRepository;
+        private ICommonRepository<Users> _userRepository;
+        private DBContext _dBContext;
         public SubjectController(ICommonRepository<Subject> subjectRepository, ICommonRepository<Teacher_Subject> subjectTeacherRepository, 
             ICommonRepository<Users> userRepository)
         {

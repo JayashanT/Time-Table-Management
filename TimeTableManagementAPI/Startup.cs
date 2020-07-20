@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using TimeTableAPI.Models;
+using TimeTableManagementAPI.Hub;
 using TimeTableManagementAPI.Models;
 using TimeTableManagementAPI.Repository;
 using TimeTableManagementAPI.Services;
@@ -79,7 +80,11 @@ namespace TimeTableManagementAPI
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            
+
+            app.UseSignalR(routes =>
+            {
+                routes.MapHub<ConnectionHub>("/connectionHub");
+            });
 
             app.UseMvc(routes =>
             {

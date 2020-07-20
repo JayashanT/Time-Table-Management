@@ -15,9 +15,9 @@ namespace TimeTableManagementAPI.Controllers
     [ApiController]
     public class AttendanceController:Controller
     {
-        DBContext _dBContext;
-        ICommonRepository<Attendance> _attendanceRepository;
-        ICommonRepository<Users> _userRepository;
+        private DBContext _dBContext;
+        private ICommonRepository<Attendance> _attendanceRepository;
+        private ICommonRepository<Users> _userRepository;
 
         public AttendanceController(ICommonRepository<Attendance> attendanceRepository, ICommonRepository<Users> userRepository)
         {

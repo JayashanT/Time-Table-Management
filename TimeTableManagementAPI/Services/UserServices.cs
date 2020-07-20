@@ -18,9 +18,9 @@ namespace TimeTableManagementAPI.Services
 {
     public class UserServices : IUserServices
     {
-        DBContext _dBContext;
+        private DBContext _dBContext;
         private IConfiguration _config;
-        public string key = "1234567890-abcde";
+        private string key = "1234567890-abcde";
 
         public UserServices(IConfiguration config)
         {
