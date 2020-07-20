@@ -43,7 +43,7 @@ namespace TimeTableAPI.Controllers
         public IActionResult Add([FromBody]Users user)
         {
             var Result = _userServices.Add(user);
-            if (Result.GetType() == typeof(Users))
+            if (Result.GetType() == typeof(string))
                 return Ok(Result);
             else
                 return BadRequest(Result);

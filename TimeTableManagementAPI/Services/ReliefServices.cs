@@ -55,7 +55,7 @@ namespace TimeTableManagementAPI.Services
                 string query = "INSERT INTO Updates (Date,Status,Admin_Id,Teacher_Id) values output INSERTED.Id VALUES(@Date,@Status,@Admin_Id,@Teacher_Id)";
                 SqlCommand insertCMD = new SqlCommand(query, _dBContext.MainConnection);
                 insertCMD.Parameters.AddWithValue("@Date", DateTime.Today);
-                insertCMD.Parameters.AddWithValue("@Status", false);
+                insertCMD.Parameters.AddWithValue("@Status", 0);
                 insertCMD.Parameters.AddWithValue("@Admin_Id", update.Admin_Id);
                 insertCMD.Parameters.AddWithValue("@Teacher_Id", update.Teacher_Id);
 
@@ -83,7 +83,7 @@ namespace TimeTableManagementAPI.Services
                 string query = "Update Updates SET Status=@Status WHERE Id=@Id";
                 SqlCommand updateCMD = new SqlCommand(query, _dBContext.MainConnection);
                 updateCMD.Parameters.AddWithValue("@Id", Id);
-                updateCMD.Parameters.AddWithValue("@Status", true);
+                updateCMD.Parameters.AddWithValue("@Status", 1);
 
                 var Result = updateCMD.ExecuteNonQuery();
                 _dBContext.MainConnection.Close();
