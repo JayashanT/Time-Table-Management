@@ -24,7 +24,7 @@ namespace TimeTableAPI.Controllers
         }
 
         public IActionResult GetAllUsers()
-        {
+        { 
             var Result = _userRepository.GetAll("Users");
             return Ok(Result);
         }
@@ -47,7 +47,7 @@ namespace TimeTableAPI.Controllers
                 return BadRequest(Result);
             else
                 return Ok(Result);
-
+                
 
         }
 
@@ -56,9 +56,9 @@ namespace TimeTableAPI.Controllers
         {
             var Result = _userServices.Add(user);
             if (Result.GetType() == typeof(string))
-                return Ok(Result);
-            else
                 return BadRequest(Result);
+            else
+                return Ok(Result);
         }
 
         [HttpPost]

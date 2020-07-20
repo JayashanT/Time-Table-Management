@@ -11,6 +11,7 @@ namespace TimeTableManagementAPI.Models
         public DateTime Date { get; set; }
         public byte Status { get; set; }
         public int Admin_Id { get; set; }
+        public int Slot_Id { get; set; }
         public int Teacher_Id { get; set; }
     }
 }

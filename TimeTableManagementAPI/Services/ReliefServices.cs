@@ -10,7 +10,7 @@ namespace TimeTableManagementAPI.Services
 {
     public class ReliefServices : IReliefServices
     {
-        DBContext _dBContext;
+        private DBContext _dBContext;
         public ReliefServices()
         {
             _dBContext = new DBContext();
@@ -52,12 +52,13 @@ namespace TimeTableManagementAPI.Services
         {
             try
             {
-                string query = "INSERT INTO Updates (Date,Status,Admin_Id,Teacher_Id) values output INSERTED.Id VALUES(@Date,@Status,@Admin_Id,@Teacher_Id)";
+                string query = "INSERT INTO Updates (Date,Status,Admin_Id,Teacher_Id,Slot_Id) values output INSERTED.Id VALUES(@Date,@Status,@Admin_Id,@Teacher_Id,@Slot_Id)";
                 SqlCommand insertCMD = new SqlCommand(query, _dBContext.MainConnection);
                 insertCMD.Parameters.AddWithValue("@Date", DateTime.Today);
                 insertCMD.Parameters.AddWithValue("@Status", 0);
                 insertCMD.Parameters.AddWithValue("@Admin_Id", update.Admin_Id);
                 insertCMD.Parameters.AddWithValue("@Teacher_Id", update.Teacher_Id);
+                insertCMD.Parameters.AddWithValue("@Slot_Id", update.Slot_Id);
 
                 int Id = (int)insertCMD.ExecuteScalar();
                 _dBContext.MainConnection.Close();
@@ -102,13 +103,14 @@ namespace TimeTableManagementAPI.Services
         {
             try
             {
-                string query = "Update Updates set Date=@Date,Status=@Status,Admin_Id=@Admin_Id,Teacher_Id=@Teacher_Id WHERE Id=@Id";
+                string query = "Update Updates set Date=@Date,Status=@Status,Admin_Id=@Admin_Id,Teacher_Id=@Teacher_Id,Slot_Id=@Slot_Id WHERE Id=@Id";
                 SqlCommand updateCMD = new SqlCommand(query, _dBContext.MainConnection);
                 updateCMD.Parameters.AddWithValue("@Id", update.Id);
                 updateCMD.Parameters.AddWithValue("@Date", update.Date);
                 updateCMD.Parameters.AddWithValue("@Status", update.Status);
                 updateCMD.Parameters.AddWithValue("@Admin_Id", update.Admin_Id);
                 updateCMD.Parameters.AddWithValue("@Teacher_Id", update.Teacher_Id);
+                updateCMD.Parameters.AddWithValue("@Slot_Id", update.Slot_Id);
 
                 var Id = updateCMD.ExecuteNonQuery();
 

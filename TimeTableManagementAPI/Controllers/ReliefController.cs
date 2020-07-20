@@ -11,8 +11,8 @@ namespace TimeTableManagementAPI.Controllers
 {
     public class ReliefController:Controller
     {
-        IReliefServices _reliefServices;
-        ICommonRepository<Updates> _updatesRepository;
+        private IReliefServices _reliefServices;
+        private ICommonRepository<Updates> _updatesRepository;
         public ReliefController(IReliefServices reliefServices,ICommonRepository<Updates> updatesRepository)
         {
             _reliefServices = reliefServices;

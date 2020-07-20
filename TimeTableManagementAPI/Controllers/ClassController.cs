@@ -15,8 +15,8 @@ namespace TimeTableManagementAPI.Controllers
     [ApiController]
     public class ClassController : Controller
     {
-        ICommonRepository<Class> _classRepository;
-        DBContext _dBContext;
+        private ICommonRepository<Class> _classRepository;
+        private DBContext _dBContext;
         public ClassController(ICommonRepository<Class> classRepository)
         {
             _classRepository = classRepository;

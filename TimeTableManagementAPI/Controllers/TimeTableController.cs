@@ -17,10 +17,10 @@ namespace TimeTableManagementAPI.Controllers
     [ApiController]
     public class TimeTableController : Controller
     {
-        ICommonRepository<Time_Table> _timeTableRepo;
-        ITimeTableServices _timeTableServices;
-        ICommonRepository<Slot> _slotRepo;
-        DBContext _dBContext;
+        private ICommonRepository<Time_Table> _timeTableRepo;
+        private ITimeTableServices _timeTableServices;
+        private ICommonRepository<Slot> _slotRepo;
+        private DBContext _dBContext;
         public TimeTableController(ICommonRepository<Time_Table> timeTableRepo, ITimeTableServices timeTableServices, ICommonRepository<Slot> slotRepo)
         {
             _timeTableRepo = timeTableRepo;

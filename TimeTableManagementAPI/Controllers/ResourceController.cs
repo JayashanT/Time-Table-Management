@@ -12,8 +12,8 @@ namespace TimeTableManagementAPI.Controllers
 {
     public class ResourceController : Controller
     {
-        DBContext _dBContext;
-        ICommonRepository<Resource> _resourceRepo;
+        private DBContext _dBContext;
+        private ICommonRepository<Resource> _resourceRepo;
         public ResourceController(ICommonRepository<Resource> resourceRepo)
         {
             _dBContext = new DBContext();
