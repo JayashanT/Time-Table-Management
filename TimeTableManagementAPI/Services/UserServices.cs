@@ -39,8 +39,10 @@ namespace TimeTableManagementAPI.Services
 
             if (reader.HasRows)
             {
+                reader.Close();
                 return "Staff Id already available";
             }
+            reader.Close();
             string InsertCommand = "INSERT INTO Users (Name,Staff_Id,Contact_No,Password,Role_Id) output INSERTED.Id VALUES(@Name,@Staff_Id,@Contact_No,@Password,@Role_Id)";
             try
             {
@@ -153,6 +155,7 @@ namespace TimeTableManagementAPI.Services
                 insertCommand.Parameters.AddWithValue("@Role_Id", user.Role_Id);
 
                 var result = insertCommand.ExecuteNonQuery();
+                _dBContext.MainConnection.Close();
                 if (result > 0)
                 {
                     Users ReturnUser = new Users()
@@ -167,7 +170,11 @@ namespace TimeTableManagementAPI.Services
                     return (new { token = tokenString });
                 }
                 else
+                {
+                    _dBContext.MainConnection.Close();
                     return "Update Failed";
+                }
+                    
             }
             catch (Exception e)
             {
@@ -221,12 +228,24 @@ namespace TimeTableManagementAPI.Services
                     user.Name = Convert.ToString(reader["Name"]);
                     user.Contact_No = Convert.ToString(reader["Contact_No"]);
                     user.Role_Id = Convert.ToInt32(reader["Role_Id"]);
+                    reader.Close();
+                    _dBContext.MainConnection.Close();
                 }
-                else return null;
-
+                else
+                {
+                    reader.Close();
+                    _dBContext.MainConnection.Close();
+                    return null;
+                }
                 return user;
             }
-            else return null;
+            else
+            {
+                reader.Close();
+                _dBContext.MainConnection.Close();
+                return null;
+            }
+                
         }
 
     }

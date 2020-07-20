@@ -69,6 +69,7 @@ namespace TimeTableManagementAPI.Controllers
                 insertCommand.Parameters.AddWithValue("@Medium", subject.Medium);
 
                 var result = insertCommand.ExecuteNonQuery();
+                _dBContext.MainConnection.Close();
                 if (result > 0)
                     return Ok();
                 else
@@ -93,6 +94,7 @@ namespace TimeTableManagementAPI.Controllers
                 updateCMD.Parameters.AddWithValue("@Id",subject.Id);
 
                 var result = updateCMD.ExecuteNonQuery();
+                _dBContext.MainConnection.Close();
                 if (result > 0)
                     return Ok(subject);
                 else
@@ -101,6 +103,7 @@ namespace TimeTableManagementAPI.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+                _dBContext.MainConnection.Close();
                 return BadRequest();
             }
         }
@@ -126,11 +129,13 @@ namespace TimeTableManagementAPI.Controllers
                         entities.Add(item);
                     }
                 }
+                _dBContext.MainConnection.Close();
                 return Ok(entities);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+                _dBContext.MainConnection.Close();
                 return null;
             }
     }
@@ -157,6 +162,7 @@ namespace TimeTableManagementAPI.Controllers
                 insertCommand.Parameters.AddWithValue("@Subject_Id", teacher_Subject.Subject_Id);
 
                 var result = insertCommand.ExecuteNonQuery();
+                _dBContext.MainConnection.Close();
                 if (result > 0)
                     return Ok();
                 else
@@ -167,6 +173,17 @@ namespace TimeTableManagementAPI.Controllers
                 Console.WriteLine(e.Message);
                 return BadRequest();
             }
+        }
+
+        [HttpDelete]
+        [Route("RemoveSubjectFromTeacher/{id}")]
+        public IActionResult RemoveAllocatedSubjectsFromTeachers(int Id)
+        {
+            var Result = _subjectTeacherRepository.DeleteRecord("Teacher_Subject",Id);
+            if (Result)
+                return Ok("Subject Deleted");
+            else
+                return BadRequest("Something went wrong");
         }
     }
 }

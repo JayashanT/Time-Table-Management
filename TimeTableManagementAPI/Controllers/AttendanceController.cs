@@ -41,6 +41,7 @@ namespace TimeTableManagementAPI.Controllers
 
                 var Result = SetAttendanceCMD.ExecuteScalar();
             };
+            _dBContext.MainConnection.Close();
             return Ok("All attendance set to false");
         }
 
@@ -52,10 +53,11 @@ namespace TimeTableManagementAPI.Controllers
                 string SetAttendance = "UPDATE Attendance SET Status=@Status WHERE User_id=@User_Id AND Date=@Date";
                 SqlCommand SetAttendanceCMD = new SqlCommand(SetAttendance, _dBContext.MainConnection);
                 SetAttendanceCMD.Parameters.AddWithValue("@Date", attendance.Date);
-                SetAttendanceCMD.Parameters.AddWithValue("@Status", attendance.Date);
+                SetAttendanceCMD.Parameters.AddWithValue("@Status", attendance.Status);
                 SetAttendanceCMD.Parameters.AddWithValue("@User_id", attendance.User_Id);
 
                 var Result = SetAttendanceCMD.ExecuteNonQuery();
+                _dBContext.MainConnection.Close();
                 if (Result > 0)
                     return Ok(attendance);
                 else
@@ -63,6 +65,7 @@ namespace TimeTableManagementAPI.Controllers
             }
             catch(Exception e)
             {
+                _dBContext.MainConnection.Close();
                 return BadRequest("Something went wrong");
             }
         }
@@ -85,6 +88,7 @@ namespace TimeTableManagementAPI.Controllers
                 };
                 attendances.Add(attendance);
             }
+            _dBContext.MainConnection.Close();
             if (attendances.Any())
                 return Ok(attendances);
             else

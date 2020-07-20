@@ -32,6 +32,7 @@ namespace TimeTableManagementAPI.Controllers
                     insertCommand.Parameters.AddWithValue("@Type", resource.Type);
 
                     int result = (int)insertCommand.ExecuteScalar();
+                    _dBContext.MainConnection.Close();
                     if (result > 0)
                     {
                         resource.Id = result;
@@ -44,6 +45,7 @@ namespace TimeTableManagementAPI.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+                _dBContext.MainConnection.Close();
                 return BadRequest();
             }
         }
@@ -60,6 +62,7 @@ namespace TimeTableManagementAPI.Controllers
                     insertCommand.Parameters.AddWithValue("@Id", resource.Id);
 
                     var result = insertCommand.ExecuteNonQuery();
+                    _dBContext.MainConnection.Close();
                     if (result > 0)
                     {
                         return Ok(resource);
@@ -71,6 +74,7 @@ namespace TimeTableManagementAPI.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+                _dBContext.MainConnection.Close();
                 return BadRequest();
             }
         }
@@ -112,6 +116,7 @@ namespace TimeTableManagementAPI.Controllers
                 };
                 resources.Add(resource);
             }
+            _dBContext.MainConnection.Close();
             if (!resources.Any())
                 return Ok("No Resources Available");
             else
