@@ -68,12 +68,12 @@ namespace TimeTableManagementAPI.Services
                     return (new { token = tokenString });
                 }
                 else
-                    return false;
+                    return "Someting Went wrong";
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
-                return false;
+                return "Someting Went wrong";
             }
         }
 
