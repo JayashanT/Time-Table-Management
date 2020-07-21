@@ -129,6 +129,7 @@ namespace TimeTableManagementAPI.Services
             if (checkSlotReader.HasRows)
             {
                 checkSlotReader.Close();
+                _dBContext.MainConnection.Close();
                 return "Slot Already Allocated";
             }
             
@@ -324,8 +325,8 @@ namespace TimeTableManagementAPI.Services
             SqlDataReader checkSlotReader = checkSlotCommand.ExecuteReader();
             checkSlotReader.Read();
             var AllSlotsOFATimeTable = _slotRepo.GetByOneParameter("Slot", "Time_Table_Id", Convert.ToString(checkSlotReader["Id"]));
+            checkSlotReader.Close();
 
-            //string = "SELECT * from "
             TableData td = new TableData()
             {
                 Id = time_Table.Id,
