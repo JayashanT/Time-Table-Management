@@ -39,6 +39,7 @@ namespace TimeTableManagementAPI.Repository
                     }
                     
                 }
+                myCommand.Connection.Close();
                 return entities;
             }
             catch(Exception e)
@@ -69,8 +70,10 @@ namespace TimeTableManagementAPI.Repository
                 }
                 else
                 {
+                    myCommand.Connection.Close();
                     return null;
                 }
+                myCommand.Connection.Close();
                 return item;
 
 
@@ -105,6 +108,7 @@ namespace TimeTableManagementAPI.Repository
                         entities.Add(item);
                     }
                 }
+                myCommand.Connection.Close();
                 return entities;
             }
             catch (Exception e)
@@ -126,9 +130,15 @@ namespace TimeTableManagementAPI.Repository
             {
                 var Result=myCommand.ExecuteNonQuery();
                 if (Result != 0)
+                {
+                    myCommand.Connection.Close();
                     return true;
+                }
                 else
+                {
+                    myCommand.Connection.Close();
                     return false;
+                } 
             }
             catch (Exception e)
             {

@@ -17,7 +17,7 @@ namespace TimeTableManagementAPI.Services
         private DBContext _dBContext;
         private ICommonRepository<Time_Table> _timetableRepo;
         private ICommonRepository<Slot> _slotRepo;
-        public TimeTableServices(ICommonRepository<Time_Table> timetableRepo,ICommonRepository<Slot> slotRepo)
+        public TimeTableServices(ICommonRepository<Time_Table> timetableRepo, ICommonRepository<Slot> slotRepo)
         {
             _dBContext = new DBContext();
             _timetableRepo = timetableRepo;
@@ -36,8 +36,8 @@ namespace TimeTableManagementAPI.Services
                 reader.Close();
                 return ("Time Table already Available For Class");
             }
-            
-           // string InsertCommand = "INSERT INTO Time_Table (Name,Grade,Admin_Id,Class_Id) output INSERTED.Id VALUES(@Name,@Grade,@Admin_Id,@Class_Id)";
+
+            // string InsertCommand = "INSERT INTO Time_Table (Name,Grade,Admin_Id,Class_Id) output INSERTED.Id VALUES(@Name,@Grade,@Admin_Id,@Class_Id)";
             try
             {
                 using (SqlCommand insertCommand = new SqlCommand("INSERT INTO Time_Table(Name, Grade, Admin_Id, Class_Id) output inserted.Id VALUES(@Name, @Grade, @Admin_Id, @Class_Id)", _dBContext.MainConnection))
@@ -52,11 +52,11 @@ namespace TimeTableManagementAPI.Services
                     {
                         Time_Table time_Table = new Time_Table()
                         {
-                            Id=Id,
-                            Name=timeTable.Name,
-                            Grade=timeTable.Grade,
-                            Admin_Id=timeTable.Grade,
-                            Class_Id=timeTable.Class_Id
+                            Id = Id,
+                            Name = timeTable.Name,
+                            Grade = timeTable.Grade,
+                            Admin_Id = timeTable.Grade,
+                            Class_Id = timeTable.Class_Id
                         };
                         _dBContext.MainConnection.Close();
                         return (time_Table);
@@ -67,7 +67,7 @@ namespace TimeTableManagementAPI.Services
                         return false;
                     }
                 }
-                
+
             }
             catch (Exception e)
             {
@@ -106,7 +106,7 @@ namespace TimeTableManagementAPI.Services
                     else
                         return "Time Table Update Not done";
                 }
-               
+
             }
             catch (Exception e)
             {
@@ -118,7 +118,7 @@ namespace TimeTableManagementAPI.Services
 
         public object CreateAPeriodSlot(Slot slot)
         {
-            
+
             string checkSlot = "select * from slot where Time_Table_Id=@Time_Table_Id AND Period_No=@Period_No1";
             SqlCommand checkSlotCommand = new SqlCommand(checkSlot, _dBContext.MainConnection);
             checkSlotCommand.Parameters.AddWithValue("@Time_Table_Id", slot.Time_Table_Id);
@@ -132,7 +132,7 @@ namespace TimeTableManagementAPI.Services
                 _dBContext.MainConnection.Close();
                 return "Slot Already Allocated";
             }
-            
+
 
             string InsertCommand = "INSERT INTO Slot (Day,Start_Time,End_Time,Period_No,Time_Table_Id,Resource_Id,Teacher_Id,Subject_Id) " +
                 "output INSERTED.Id VALUES(@Day,@Start_Time,@End_Time,@Period_No,@Time_Table_Id,@Resource_Id,@Teacher_Id,@Subject_Id)";
@@ -155,22 +155,22 @@ namespace TimeTableManagementAPI.Services
                     {
                         Slot Outslot = new Slot()
                         {
-                            Id=Id,
-                            Day=slot.Day,
-                            Start_Time=slot.Start_Time,
-                            End_Time=slot.End_Time,
-                            Period_No=slot.Period_No,
-                            Time_Table_Id=slot.Time_Table_Id,
-                            Resource_Id=slot.Resource_Id,
-                            Teacher_Id=slot.Teacher_Id,
-                            Subject_Id=slot.Subject_Id
+                            Id = Id,
+                            Day = slot.Day,
+                            Start_Time = slot.Start_Time,
+                            End_Time = slot.End_Time,
+                            Period_No = slot.Period_No,
+                            Time_Table_Id = slot.Time_Table_Id,
+                            Resource_Id = slot.Resource_Id,
+                            Teacher_Id = slot.Teacher_Id,
+                            Subject_Id = slot.Subject_Id
                         };
                         return (Outslot);
                     }
                     else
                         return "Error in Slot Creation";
                 }
-                
+
             }
             catch (Exception e)
             {
@@ -195,10 +195,11 @@ namespace TimeTableManagementAPI.Services
 
             if (!checkSlotReader.HasRows)
             {
+                checkSlotCommand.Connection.Close();
                 checkSlotReader.Close();
                 return "No Slot Available";
             }
-            
+
 
             string InsertCommand = "Update SET Day=@Day,Start_Time=@Start_Time,End_Time=@End_Time,Period_No=@Period_No,Time_Table_Id=@Time_Table_Id,Resource_Id=@Resource_Id,Teacher_Id=@Teacher_Id,Subject_Id=@Subject_Id WHERE Id=@Id";
             try
@@ -216,9 +217,10 @@ namespace TimeTableManagementAPI.Services
                     insertCommand.Parameters.AddWithValue("@Id", slot.Id);
 
                     var Id = insertCommand.ExecuteNonQuery();
+                    insertCommand.Connection.Close();
                     _dBContext.MainConnection.Close();
                     if (Id > 0)
-                    { 
+                    {
                         return (slot);
                     }
                     else
@@ -236,7 +238,7 @@ namespace TimeTableManagementAPI.Services
 
         public object GetAllTeachersAvailableForSlotForASubject(string PeriodNo, int SubjectId)
         {
-           // DataTable dt = new DataTable();
+            // DataTable dt = new DataTable();
             string AvailablityTeachers = "select distinct u.Id,u.Name,s.Period_No from users u left join slot s on u.Id = s.Teacher_Id " +
                 "left join Teacher_Subject t on u.Id = t.Teacher_Id WHERE t.Subject_Id = @Subject_Id ";
             SqlCommand QueryCommand = new SqlCommand(AvailablityTeachers, _dBContext.MainConnection);
@@ -258,14 +260,15 @@ namespace TimeTableManagementAPI.Services
             {
                 if (entry.Period_No == PeriodNo)
                 {
-                    foreach (var user in entities.ToList()) 
-                        if(user.Id==entry.Id)
+                    foreach (var user in entities.ToList())
+                        if (user.Id == entry.Id)
                             entities.Remove(user);
 
                 }
             }
-            var result=entities.GroupBy(X => X.Id).Select(x=>x.First());
+            var result = entities.GroupBy(X => X.Id).Select(x => x.First());
             reader.Close();
+            QueryCommand.Connection.Close();
             _dBContext.MainConnection.Close();
             if (!result.Any())
                 return ("No Teachers available");
@@ -275,31 +278,56 @@ namespace TimeTableManagementAPI.Services
 
         public Object GetTimeTableDetails(int Id)
         {
-            var TableDetails=_timetableRepo.GetById("Time_Table",Id);
+            var TableDetails = _timetableRepo.GetById("Time_Table", Id);
             if (TableDetails == null)
                 return ("Time Table Not Found");
             var AllSlotsOFATimeTable = _slotRepo.GetByOneParameter("Slot", "Time_Table_Id", Convert.ToString(Id));
-            TableData td = new TableData()
+
+            string query = "SELECT distinct s.Id,s.Day,s.Period_No,s.Time_Table_Id,s.Resource_Id,s.Teacher_Id,u.Name AS Teacher_Name,s.Subject_Id,sb.Name AS Subject_Name" +
+                " FROM Slot s INNER JOIN Subject sb ON s.Subject_Id=sb.Id INNER JOIN users u ON s.Teacher_Id=u.Id WHERE s.Time_Table_Id=@S_Id";
+            using (SqlCommand QueryCommand = new SqlCommand(query, _dBContext.MainConnection))
             {
-                Id = TableDetails.Id,
-                Name = TableDetails.Name,
-                Grade = TableDetails.Grade,
-                Admin_Id = TableDetails.Admin_Id,
-                slot = new List<Slot>()
-               
-            };
-            foreach (var singleSlot in AllSlotsOFATimeTable)
-                td.slot.Add(singleSlot);
+                QueryCommand.Parameters.AddWithValue("@S_Id", Id);
+                SqlDataReader reader = QueryCommand.ExecuteReader();
+                List<SlotVM> slotVMs = new List<SlotVM>().ToList();
+                while (reader.Read())
+                {
+                    SlotVM slot = new SlotVM()
+                    {
+                        Id = Convert.ToInt32(reader["Id"]),
+                        Day = reader["Day"].ToString(),
+                        Period_No = reader["Period_No"].ToString(),
+                        Time_Table_Id = Convert.ToInt32(reader["Time_Table_Id"]),
+                        Teacher_Id = Convert.ToInt32(reader["Teacher_Id"]),
+                        Teacher_Name = reader["Teacher_Name"].ToString(),
+                        Subject_Id = Convert.ToInt32(reader["Subject_Id"]),
+                        Subject_Name = reader["Subject_Name"].ToString()
+                    };
+                    if (reader["Resource_Id"] == DBNull.Value)
+                        slot.Resource_Id = 0;
+                    else
+                        slot.Resource_Id = Convert.ToInt32(reader["Resource_Id"]);
 
-            return td;
+                        slotVMs.Add(slot);
+                }
 
+                TableData td = new TableData()
+                {
+                    Id = TableDetails.Id,
+                    Name = TableDetails.Name,
+                    Grade = TableDetails.Grade,
+                    Admin_Id = TableDetails.Admin_Id,
+                    slot = slotVMs
+
+                };
+                reader.Close();
+                QueryCommand.Connection.Close();
+                return td;
+            }
         }
 
         public object GetDetailsOfATimeTableByClassId(int ClassId)
         {
-            //var TimeTableDetails = _timetableRepo.GetByOneParameter("Time_Table", "Class_Id", Convert.ToString(ClassId));
-            
-
             string TimeTableDetails = "select * from Time_Table where Class_Id=@ClassId ";
             SqlCommand QueryCommand = new SqlCommand(TimeTableDetails, _dBContext.MainConnection);
             QueryCommand.Parameters.AddWithValue("@ClassId", ClassId);
@@ -311,7 +339,7 @@ namespace TimeTableManagementAPI.Services
                 reader.Close();
                 return ("Time Table Not Found");
             }
-            reader.Close();
+
             Time_Table time_Table = new Time_Table()
             {
                 Id=Convert.ToInt32(reader["Id"]),
@@ -320,7 +348,8 @@ namespace TimeTableManagementAPI.Services
                 Admin_Id=Convert.ToInt32(reader["Admin_Id"]),
                 Class_Id=ClassId
             };
-            
+            reader.Close();
+            QueryCommand.Connection.Close();
 
             string checkSlot = "select Id from Time_Table where Class_Id=@Class_Id";
             SqlCommand checkSlotCommand = new SqlCommand(checkSlot, _dBContext.MainConnection);
@@ -328,26 +357,52 @@ namespace TimeTableManagementAPI.Services
 
             SqlDataReader checkSlotReader = checkSlotCommand.ExecuteReader();
             checkSlotReader.Read();
-            var AllSlotsOFATimeTable = _slotRepo.GetByOneParameter("Slot", "Time_Table_Id", Convert.ToString(checkSlotReader["Id"]));
-            checkSlotReader.Close();
+            //var AllSlotsOFATimeTable = _slotRepo.GetByOneParameter("Slot", "Time_Table_Id", Convert.ToString(checkSlotReader["Id"]));
 
-            TableData td = new TableData()
+            string query = "SELECT distinct s.Id,s.Day,s.Period_No,s.Time_Table_Id,s.Resource_Id,s.Teacher_Id,u.Name AS Teacher_Name,s.Subject_Id,sb.Name AS Subject_Name" +
+                " FROM Slot s INNER JOIN Subject sb ON s.Subject_Id=sb.Id INNER JOIN users u ON s.Teacher_Id=u.Id WHERE s.Time_Table_Id=@S_Id";
+            using (SqlCommand QueryCMD = new SqlCommand(query, _dBContext.MainConnection))
             {
-                Id = time_Table.Id,
-                Name = time_Table.Name,
-                Grade = time_Table.Grade,
-                Admin_Id = time_Table.Admin_Id,
-                slot = new List<Slot>()
+                QueryCommand.Parameters.AddWithValue("@S_Id", Convert.ToInt32(checkSlotReader["Id"]));
+                SqlDataReader sreader = QueryCommand.ExecuteReader();
+                List<SlotVM> slotVMs = new List<SlotVM>().ToList();
+                while (sreader.Read())
+                {
+                    SlotVM slot = new SlotVM()
+                    {
+                        Id = Convert.ToInt32(sreader["Id"]),
+                        Day = sreader["Day"].ToString(),
+                        Period_No = sreader["Period_No"].ToString(),
+                        Time_Table_Id = Convert.ToInt32(sreader["Time_Table_Id"]),
+                        Teacher_Id = Convert.ToInt32(sreader["Teacher_Id"]),
+                        Teacher_Name = sreader["Teacher_Name"].ToString(),
+                        Subject_Id = Convert.ToInt32(reader["Subject_Id"]),
+                        Subject_Name = sreader["Subject_Name"].ToString()
+                    };
+                    if (sreader["Resource_Id"] == DBNull.Value)
+                        slot.Resource_Id = 0;
+                    else
+                        slot.Resource_Id = Convert.ToInt32(sreader["Resource_Id"]);
 
-            };
-            foreach (var singleSlot in AllSlotsOFATimeTable)
-            {
-                td.slot.Add(singleSlot);
+                    slotVMs.Add(slot);
+                }
+
+                TableData td = new TableData()
+                {
+                    Id = time_Table.Id,
+                    Name = time_Table.Name,
+                    Grade = time_Table.Grade,
+                    Admin_Id = time_Table.Admin_Id,
+                    slot = slotVMs
+
+                };
+                sreader.Close();
+                QueryCMD.Connection.Close();
+                checkSlotCommand.Connection.Close();
+                return td;
+
             }
-                
-
-            return td;
-
         }
-    }    
+
+    }
 }

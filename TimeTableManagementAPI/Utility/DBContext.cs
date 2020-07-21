@@ -15,6 +15,8 @@ namespace TimeTableManagementAPI.Utility
         {
             MainConnection = new SqlConnection(ConnectionInformation);
             MainConnection.Open();
+            
+            
         }
     }
 }
