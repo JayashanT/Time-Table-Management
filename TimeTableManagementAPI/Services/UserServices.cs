@@ -40,6 +40,7 @@ namespace TimeTableManagementAPI.Services
             if (reader.HasRows)
             {
                 reader.Close();
+                _dBContext.MainConnection.Close();
                 return "Staff Id already available";
             }
             reader.Close();
@@ -65,13 +66,18 @@ namespace TimeTableManagementAPI.Services
                         Role_Id=user.Role_Id
                     };
                     var tokenString = GenerateJSONWebToken(ReturnUser);
+                    _dBContext.MainConnection.Close();
                     return (new { token = tokenString });
                 }
                 else
+                {
+                    _dBContext.MainConnection.Close();
                     return "Someting Went wrong";
+                } 
             }
             catch (Exception e)
             {
+                _dBContext.MainConnection.Close();
                 Console.WriteLine(e.Message);
                 return "Someting Went wrong";
             }
@@ -178,6 +184,7 @@ namespace TimeTableManagementAPI.Services
             }
             catch (Exception e)
             {
+                _dBContext.MainConnection.Close();
                 Console.WriteLine(e.Message);
                 return false;
             }
