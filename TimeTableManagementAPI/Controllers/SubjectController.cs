@@ -170,9 +170,11 @@ namespace TimeTableManagementAPI.Controllers
             }
             catch (Exception e)
             {
+                _dBContext.MainConnection.Close();
                 Console.WriteLine(e.Message);
                 return BadRequest();
             }
+            
         }
 
         [HttpDelete]

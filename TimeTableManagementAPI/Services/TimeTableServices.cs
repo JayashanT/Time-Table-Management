@@ -178,6 +178,10 @@ namespace TimeTableManagementAPI.Services
                 _dBContext.MainConnection.Close();
                 return "Error in Saving";
             }
+            finally
+            {
+                _dBContext.MainConnection.Close();
+            }
         }
 
         public object UpdatePeriodSlot(Slot slot)
