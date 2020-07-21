@@ -9,6 +9,8 @@ using TimeTableManagementAPI.Services;
 
 namespace TimeTableManagementAPI.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class ReliefController:Controller
     {
         private IReliefServices _reliefServices;

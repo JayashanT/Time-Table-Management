@@ -325,6 +325,7 @@ namespace TimeTableManagementAPI.Services
             checkSlotReader.Read();
             var AllSlotsOFATimeTable = _slotRepo.GetByOneParameter("Slot", "Time_Table_Id", Convert.ToString(checkSlotReader["Id"]));
 
+            //string = "SELECT * from "
             TableData td = new TableData()
             {
                 Id = time_Table.Id,
@@ -335,7 +336,10 @@ namespace TimeTableManagementAPI.Services
 
             };
             foreach (var singleSlot in AllSlotsOFATimeTable)
+            {
                 td.slot.Add(singleSlot);
+            }
+                
 
             return td;
 

@@ -10,6 +10,8 @@ using TimeTableManagementAPI.Utility;
 
 namespace TimeTableManagementAPI.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class ResourceController : Controller
     {
         private DBContext _dBContext;
@@ -50,6 +52,8 @@ namespace TimeTableManagementAPI.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("UpdateResource")]
         public IActionResult UpdateResource([FromBody]Resource resource)
         {
             string InsertCommand = "UPDATE Resource SET Name=@Name,Type=@Type WHERE Id=@Id";
@@ -98,7 +102,8 @@ namespace TimeTableManagementAPI.Controllers
                 return BadRequest("No resources Found");
         }
 
-        public IActionResult GetAllAvailbleResourcesForASlot(int periodNo)
+        [Route("GetAvailableResources")]
+        public IActionResult GetAllAvailbleResourcesForASlot(string periodNo)
         {
             string AvailableResources = "SELECT distinct R.ID,R.NAME,R.Type FROM Resource R LEFT JOIN SLOT S ON R.ID=S.Resource_Id WHERE S.Period_No!=@Period_No";
             SqlCommand QueryCommand = new SqlCommand(AvailableResources, _dBContext.MainConnection);
