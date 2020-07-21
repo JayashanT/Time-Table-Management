@@ -41,6 +41,7 @@ namespace TimeTableManagementAPI.Services
                 slots.Add(slot);
             }
             reader.Close();
+            QueryCMD.Connection.Close();
             _dBContext.MainConnection.Close();
             if (slots.Any())
                 return (slots);
@@ -61,6 +62,7 @@ namespace TimeTableManagementAPI.Services
                 insertCMD.Parameters.AddWithValue("@Slot_Id", update.Slot_Id);
 
                 int Id = (int)insertCMD.ExecuteScalar();
+                insertCMD.Connection.Close();
                 _dBContext.MainConnection.Close();
                 if (Id > 0)
                 {
@@ -87,6 +89,7 @@ namespace TimeTableManagementAPI.Services
                 updateCMD.Parameters.AddWithValue("@Status", 1);
 
                 var Result = updateCMD.ExecuteNonQuery();
+                updateCMD.Connection.Close();
                 _dBContext.MainConnection.Close();
                 if (Result > 0)
                     return "Relief Updated";
@@ -114,6 +117,7 @@ namespace TimeTableManagementAPI.Services
 
                 var Id = updateCMD.ExecuteNonQuery();
 
+                updateCMD.Connection.Close();
                 _dBContext.MainConnection.Close();
                 if (Id > 0)
                 {

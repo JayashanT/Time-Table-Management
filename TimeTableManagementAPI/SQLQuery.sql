@@ -30,6 +30,11 @@ ADD UNIQUE (Staff_Id);
 ALTER TABLE Users 
 ALTER COLUMN Staff_Id NVARCHAR(450) ;
 
+ALTER TABLE Users 
+add Connection_Id NVARCHAR(max) ;
+
+select * from users
+
 INSERT INTO Users VALUES('Jayashan',0001,'0712043390','123',2) 
 INSERT INTO Users VALUES('Thivanka',0002,'0766454594','0123',1)
 INSERT INTO Users VALUES('EnglishTeacher',0003,'0766454594','123',2) 
@@ -297,7 +302,15 @@ select * from users u inner join slot s on u.Id = s.Teacher_Id left join Teacher
 select s.Period_No,u.name,u.id from users u left join slot s on u.Id = s.Teacher_Id left join Teacher_Subject t on u.Id = t.Teacher_Id WHERE t.Subject_Id = 1
 
 select * from users
-select * from slot
+select * from Subject
+s
 
 select * from slot where id=6
-Select * from Slot where Time_Table_Id=2
+Select * from Slot where Time_Table_Id=1
+
+SELECT  s.Id,s.Day,s.Period_No,s.Time_Table_Id,s.Resource_Id,s.Teacher_Id,s.Subject_Id,sb.Name as S_Name
+                FROM Slot s INNER JOIN Subject sb ON s.Subject_Id=sb.Id INNER JOIN users u ON s.Teacher_Id=u.Id WHERE s.Time_Table_Id=1
+
+SELECT * FROM SLOT S INNER JOIN Subject SB ON S.Subject_Id=SB.Id WHERE s.Time_Table_Id=1
+
+,u.Name as T_Name

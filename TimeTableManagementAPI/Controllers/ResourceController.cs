@@ -52,7 +52,7 @@ namespace TimeTableManagementAPI.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPut]
         [Route("UpdateResource")]
         public IActionResult UpdateResource([FromBody]Resource resource)
         {
