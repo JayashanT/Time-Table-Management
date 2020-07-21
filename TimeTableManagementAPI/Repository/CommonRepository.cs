@@ -26,7 +26,6 @@ namespace TimeTableManagementAPI.Repository
                 string MyCommand = "Select * from " + table;
                 SqlCommand myCommand = new SqlCommand(MyCommand, _dBContext.MainConnection);
                 SqlDataAdapter da = new SqlDataAdapter(myCommand);
-                //DataSet ds = new DataSet();
                 da.Fill(dt);
 
                 List<TEntity> entities = new List<TEntity>(dt.Rows.Count);
@@ -36,18 +35,19 @@ namespace TimeTableManagementAPI.Repository
                     {
                         TEntity item = GetItem<TEntity>(record);
                         entities.Add(item);
-                        //entities.Add(new Read(record));
                     }
                     
                 }
-                _dBContext.MainConnection.Close();
                 return entities;
             }
             catch(Exception e)
             {
                 Console.WriteLine(e.Message);
-                _dBContext.MainConnection.Close();
                 return null;
+            }
+            finally
+            {
+                _dBContext.MainConnection.Close();
             }
             
         }
@@ -61,28 +61,27 @@ namespace TimeTableManagementAPI.Repository
                 SqlDataAdapter da = new SqlDataAdapter(myCommand);
                 da.Fill(dt);
 
-                // List<TEntity> entities = new List<TEntity>(dt.Rows.Count);
                 TEntity item;
                 if (dt.Rows.Count > 0)
                 {
                     item = GetItem<TEntity>(dt.Rows[0]);
-                    // entities.Add(item);
                 }
                 else
                 {
-                    _dBContext.MainConnection.Close();
                     return null;
                 }
-                _dBContext.MainConnection.Close();
                 return item;
 
 
             }
             catch (Exception e)
             {
-                _dBContext.MainConnection.Close();
                 Console.WriteLine(e.Message);
                 return null;
+            }
+            finally
+            {
+                _dBContext.MainConnection.Close();
             }
         }
 
@@ -105,14 +104,16 @@ namespace TimeTableManagementAPI.Repository
                         entities.Add(item);
                     }
                 }
-                _dBContext.MainConnection.Close();
                 return entities;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
-                _dBContext.MainConnection.Close();
                 return null;
+            }
+            finally
+            {
+                _dBContext.MainConnection.Close();
             }
         }
 
@@ -123,7 +124,6 @@ namespace TimeTableManagementAPI.Repository
             try
             {
                 var Result=myCommand.ExecuteNonQuery();
-                _dBContext.MainConnection.Close();
                 if (Result != 0)
                     return true;
                 else
@@ -132,8 +132,11 @@ namespace TimeTableManagementAPI.Repository
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
-                _dBContext.MainConnection.Close();
                 return false;
+            }
+            finally
+            {
+                _dBContext.MainConnection.Close();
             }
         }
 
