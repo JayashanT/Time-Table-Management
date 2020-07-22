@@ -11,6 +11,7 @@ namespace TimeTableManagementAPI.VM
         public int Id { get; set; }
         public string Name { get; set; }
         public int Grade { get; set; }
+        public int Class_id { get; set; }
         public int Admin_Id { get; set; }
         public List<SlotVM> slot { get; set; }
     }

@@ -20,13 +20,11 @@ namespace TimeTableManagementAPI.Controllers
         private ICommonRepository<Time_Table> _timeTableRepo;
         private ITimeTableServices _timeTableServices;
         private ICommonRepository<Slot> _slotRepo;
-        private DBContext _dBContext;
         public TimeTableController(ICommonRepository<Time_Table> timeTableRepo, ITimeTableServices timeTableServices, ICommonRepository<Slot> slotRepo)
         {
             _timeTableRepo = timeTableRepo;
             _timeTableServices = timeTableServices;
             _slotRepo = slotRepo;
-            _dBContext = new DBContext();
         }
 
         public IActionResult GetAllTimeTables()

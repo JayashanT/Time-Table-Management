@@ -1,4 +1,4 @@
-﻿USE TimeTableDB
+﻿/USE TimeTableDB
 
 CREATE TABLE [Role] (
     [Id] INT IDENTITY (1, 1) NOT NULL,

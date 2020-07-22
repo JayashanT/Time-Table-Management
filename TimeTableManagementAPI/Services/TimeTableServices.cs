@@ -316,6 +316,7 @@ namespace TimeTableManagementAPI.Services
                     Id = TableDetails.Id,
                     Name = TableDetails.Name,
                     Grade = TableDetails.Grade,
+                    Class_id=TableDetails.Class_Id,
                     Admin_Id = TableDetails.Admin_Id,
                     slot = slotVMs
 
@@ -349,7 +350,6 @@ namespace TimeTableManagementAPI.Services
                 Class_Id=ClassId
             };
             reader.Close();
-            QueryCommand.Connection.Close();
 
             string checkSlot = "select Id from Time_Table where Class_Id=@Class_Id";
             SqlCommand checkSlotCommand = new SqlCommand(checkSlot, _dBContext.MainConnection);
@@ -363,8 +363,9 @@ namespace TimeTableManagementAPI.Services
                 " FROM Slot s INNER JOIN Subject sb ON s.Subject_Id=sb.Id INNER JOIN users u ON s.Teacher_Id=u.Id WHERE s.Time_Table_Id=@S_Id";
             using (SqlCommand QueryCMD = new SqlCommand(query, _dBContext.MainConnection))
             {
-                QueryCommand.Parameters.AddWithValue("@S_Id", Convert.ToInt32(checkSlotReader["Id"]));
-                SqlDataReader sreader = QueryCommand.ExecuteReader();
+                QueryCMD.Parameters.AddWithValue("@S_Id", Convert.ToInt32(checkSlotReader["Id"]));
+                checkSlotReader.Close();
+                SqlDataReader sreader = QueryCMD.ExecuteReader();
                 List<SlotVM> slotVMs = new List<SlotVM>().ToList();
                 while (sreader.Read())
                 {
@@ -376,7 +377,7 @@ namespace TimeTableManagementAPI.Services
                         Time_Table_Id = Convert.ToInt32(sreader["Time_Table_Id"]),
                         Teacher_Id = Convert.ToInt32(sreader["Teacher_Id"]),
                         Teacher_Name = sreader["Teacher_Name"].ToString(),
-                        Subject_Id = Convert.ToInt32(reader["Subject_Id"]),
+                        Subject_Id = Convert.ToInt32(sreader["Subject_Id"]),
                         Subject_Name = sreader["Subject_Name"].ToString()
                     };
                     if (sreader["Resource_Id"] == DBNull.Value)
@@ -392,6 +393,7 @@ namespace TimeTableManagementAPI.Services
                     Id = time_Table.Id,
                     Name = time_Table.Name,
                     Grade = time_Table.Grade,
+                    Class_id = time_Table.Class_Id,
                     Admin_Id = time_Table.Admin_Id,
                     slot = slotVMs
 
