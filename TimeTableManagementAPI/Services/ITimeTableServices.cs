@@ -14,5 +14,6 @@ namespace TimeTableManagementAPI.Services
         Object GetTimeTableDetails(int Id);
         object GetDetailsOfATimeTableByClassId(int ClassId);
         object UpdatePeriodSlot(Slot slot);
+        object AllSlotsOfATeacher(int Id);
     }
 }

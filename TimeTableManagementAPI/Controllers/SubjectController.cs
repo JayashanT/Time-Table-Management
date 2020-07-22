@@ -32,6 +32,7 @@ namespace TimeTableManagementAPI.Controllers
         public IActionResult GetAllSubjects()
         {
             var result = _subjectRepository.GetAll("Subject");
+            _dBContext.MainConnection.Close();
             if (result != null)
                 return Ok(result);
             else

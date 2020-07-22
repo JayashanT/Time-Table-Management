@@ -17,11 +17,13 @@ namespace TimeTableManagementAPI.Services
         private DBContext _dBContext;
         private ICommonRepository<Time_Table> _timetableRepo;
         private ICommonRepository<Slot> _slotRepo;
-        public TimeTableServices(ICommonRepository<Time_Table> timetableRepo, ICommonRepository<Slot> slotRepo)
+        private ICommonRepository<Users> _userRepo;
+        public TimeTableServices(ICommonRepository<Time_Table> timetableRepo, ICommonRepository<Slot> slotRepo, ICommonRepository<Users> userRepo)
         {
             _dBContext = new DBContext();
             _timetableRepo = timetableRepo;
             _slotRepo = slotRepo;
+            _userRepo = userRepo;
         }
 
         public object Add(Time_Table timeTable)
@@ -357,7 +359,6 @@ namespace TimeTableManagementAPI.Services
 
             SqlDataReader checkSlotReader = checkSlotCommand.ExecuteReader();
             checkSlotReader.Read();
-            //var AllSlotsOFATimeTable = _slotRepo.GetByOneParameter("Slot", "Time_Table_Id", Convert.ToString(checkSlotReader["Id"]));
 
             string query = "SELECT distinct s.Id,s.Day,s.Period_No,s.Time_Table_Id,s.Resource_Id,s.Teacher_Id,u.Name AS Teacher_Name,s.Subject_Id,sb.Name AS Subject_Name" +
                 " FROM Slot s INNER JOIN Subject sb ON s.Subject_Id=sb.Id INNER JOIN users u ON s.Teacher_Id=u.Id WHERE s.Time_Table_Id=@S_Id";
@@ -403,6 +404,56 @@ namespace TimeTableManagementAPI.Services
                 checkSlotCommand.Connection.Close();
                 return td;
 
+            }
+        }
+
+        public object AllSlotsOfATeacher(int Id)
+        {
+            try
+            {
+                var IsTeacherAvailable = _userRepo.GetById("Users", Id);
+                if (IsTeacherAvailable != null)
+                    return "Teacher Not Available";
+
+                string query = "SELECT DISTINCT S.*, sb.Name as Subject_Name,T.Class_Id, C.Name AS Class_Name " +
+                    "from Slot S  INNER JOIN Time_Table T ON S.Time_Table_Id=T.Id INNER JOIN Subject sb ON S.Subject_Id=sb.Id INNER JOIN Class C ON T.Class_Id = C.Id" +
+                    " WHERE S.Teacher_Id = @Teacher_Id";
+                SqlCommand queryCMD = new SqlCommand(query, _dBContext.MainConnection);
+                queryCMD.Parameters.AddWithValue("Teacher_Id", Id);
+
+                SqlDataReader reader = queryCMD.ExecuteReader();
+                List <SlotVM> slotVMs= new List<SlotVM>().ToList();
+                while (reader.Read())
+                {
+                    SlotVM slot = new SlotVM()
+                    {
+                        Id = Convert.ToInt32(reader["Id"]),
+                        Day = reader["Day"].ToString(),
+                        Period_No = reader["Period_No"].ToString(),
+                        Time_Table_Id = Convert.ToInt32(reader["Time_Table_Id"]),
+                        Teacher_Id = Convert.ToInt32(reader["Teacher_Id"]),
+                        Subject_Id = Convert.ToInt32(reader["Subject_Id"]),
+                        Subject_Name = reader["Subject_Name"].ToString(),
+                        Class_Id=Convert.ToInt32(reader["Class_Id"]),
+                        Class_Name=reader["Class_Name"].ToString()
+                    };
+                    if (reader["Resource_Id"] == DBNull.Value)
+                        slot.Resource_Id = 0;
+                    else
+                        slot.Resource_Id = Convert.ToInt32(reader["Resource_Id"]);
+
+                    slotVMs.Add(slot);
+                    queryCMD.Connection.Close();
+                }
+                return slotVMs;
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+            finally
+            {
+                _dBContext.MainConnection.Close();
             }
         }
 
