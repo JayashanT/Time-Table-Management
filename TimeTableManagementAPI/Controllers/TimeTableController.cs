@@ -155,10 +155,10 @@ namespace TimeTableManagementAPI.Controllers
         public IActionResult GetAllTeachersSlots(int Id)
         {
             var Result = _timeTableServices.AllSlotsOfATeacher(Id);
-            if (Result.GetType() == typeof(SlotVM))
-                return Ok(Result);
-            else
+            if (Result.GetType() == typeof(string))
                 return BadRequest(Result);
+            else
+                return Ok(Result);
         }
     }
 }

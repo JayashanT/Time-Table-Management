@@ -412,7 +412,7 @@ namespace TimeTableManagementAPI.Services
             try
             {
                 var IsTeacherAvailable = _userRepo.GetById("Users", Id);
-                if (IsTeacherAvailable != null)
+                if (IsTeacherAvailable == null)
                     return "Teacher Not Available";
 
                 string query = "SELECT DISTINCT S.*, sb.Name as Subject_Name,T.Class_Id, C.Name AS Class_Name " +
@@ -443,8 +443,8 @@ namespace TimeTableManagementAPI.Services
                         slot.Resource_Id = Convert.ToInt32(reader["Resource_Id"]);
 
                     slotVMs.Add(slot);
-                    queryCMD.Connection.Close();
                 }
+                queryCMD.Connection.Close();
                 return slotVMs;
             }
             catch (Exception e)
