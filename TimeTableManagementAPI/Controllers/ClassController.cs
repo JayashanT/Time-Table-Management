@@ -25,6 +25,7 @@ namespace TimeTableManagementAPI.Controllers
 
         public IActionResult GetAllClasses()
         {
+            _dBContext.MainConnection.Close();
             var Result = _classRepository.GetAll("Class");
             return Ok(Result);
         }
@@ -65,6 +66,7 @@ namespace TimeTableManagementAPI.Controllers
         [Route("GetClassesRelateToGrade/{grade}")]
         public IActionResult GetAllClassesOfAGrade(int grade)
         {
+            _dBContext.MainConnection.Close();
             var Result = _classRepository.GetByOneParameter("Class", "Grade", Convert.ToString(grade));
             if (Result!=null)
                 return Ok(Result);

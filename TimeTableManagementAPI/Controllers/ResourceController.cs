@@ -86,6 +86,7 @@ namespace TimeTableManagementAPI.Controllers
         public IActionResult GetAllResources()
         {
             var result = _resourceRepo.GetAll("Resource");
+            _dBContext.MainConnection.Close();
             if (result != null)
                 return Ok(result);
             else
@@ -96,6 +97,7 @@ namespace TimeTableManagementAPI.Controllers
         public IActionResult GetResourceById(int Id)
         {
             var result = _resourceRepo.GetById("Resource", Id);
+            _dBContext.MainConnection.Close();
             if (result != null)
                 return Ok(result);
             else
