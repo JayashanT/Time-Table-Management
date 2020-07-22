@@ -18,5 +18,7 @@ namespace TimeTableManagementAPI.VM
         public int Subject_Id { get; set; }
         public string Teacher_Name { get; set; }
         public string Subject_Name { get; set; }
+        public int Class_Id { get; set; }
+        public string Class_Name { get; set; }
     }
 }

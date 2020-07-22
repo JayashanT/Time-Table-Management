@@ -1,4 +1,4 @@
-﻿/USE TimeTableDB
+﻿USE TimeTableDB
 
 CREATE TABLE [Role] (
     [Id] INT IDENTITY (1, 1) NOT NULL,
@@ -313,4 +313,5 @@ SELECT  s.Id,s.Day,s.Period_No,s.Time_Table_Id,s.Resource_Id,s.Teacher_Id,s.Subj
 
 SELECT * FROM SLOT S INNER JOIN Subject SB ON S.Subject_Id=SB.Id WHERE s.Time_Table_Id=1
 
-,u.Name as T_Name
+SELECT S.*, sb.Name as Subject_Name,C.Name AS Class_Name from Slot S  INNER JOIN Time_Table T ON S.Time_Table_Id=T.Id INNER JOIN Subject sb ON S.Subject_Id=sb.Id 
+INNER JOIN Class C ON T.Class_Id=C.Id WHERE S.Teacher_Id=2
