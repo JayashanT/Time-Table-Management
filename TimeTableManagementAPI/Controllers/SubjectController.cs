@@ -42,6 +42,7 @@ namespace TimeTableManagementAPI.Controllers
         public IActionResult GetASubjectById(int Id)
         {
             var result = _subjectRepository.GetById("Subject", Id);
+            _dBContext.MainConnection.Close();
             if (result != null)
                 return Ok(result);
             else
@@ -52,6 +53,7 @@ namespace TimeTableManagementAPI.Controllers
         public IActionResult DeleteSubject(int Id)
         {
             var Result = _subjectRepository.DeleteRecord("Subject", Id);
+            _dBContext.MainConnection.Close();
             if (Result)
                 return Ok("Subject Deleted");
             else
@@ -144,6 +146,7 @@ namespace TimeTableManagementAPI.Controllers
         public IActionResult GetAllSubjectsOfATeacher(int Id)
         {
             var result = _subjectTeacherRepository.GetByOneParameter("Teacher_Subject", "Teacher_Id", Convert.ToString(Id));
+            _dBContext.MainConnection.Close();
             if (result != null)
                 return Ok(result);
             else
@@ -182,6 +185,7 @@ namespace TimeTableManagementAPI.Controllers
         public IActionResult RemoveAllocatedSubjectsFromTeachers(int Id)
         {
             var Result = _subjectTeacherRepository.DeleteRecord("Teacher_Subject",Id);
+            _dBContext.MainConnection.Close();
             if (Result)
                 return Ok("Subject Deleted");
             else
