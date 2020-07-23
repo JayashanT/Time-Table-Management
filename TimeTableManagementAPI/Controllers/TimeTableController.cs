@@ -123,10 +123,10 @@ namespace TimeTableManagementAPI.Controllers
         public IActionResult UpateSlot([FromBody]Slot slot)
         {
             var Result = _timeTableServices.UpdatePeriodSlot(slot);
-            if (Result.GetType() == typeof(Slot))
-                return Ok(Result);
+            if (Result.GetType() == typeof(string))
+                return BadRequest(Result); 
             else
-                return BadRequest(Result);
+                return Ok(Result);
         }
 
         [Route("getASlotById/{id}")]
