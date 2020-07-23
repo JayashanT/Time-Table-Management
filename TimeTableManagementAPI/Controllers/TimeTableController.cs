@@ -61,6 +61,11 @@ namespace TimeTableManagementAPI.Controllers
         [HttpDelete]
         public IActionResult DeleteATimeTable(int Id)
         {
+            var allSLots = _slotRepo.GetByOneParameter("Slot", "Time_Table_Id",Id.ToString());
+            foreach(var slot in allSLots)
+            {
+                _slotRepo.DeleteRecord("Slot", slot.Id);
+            };
             var result = _timeTableRepo.DeleteRecord("Time_Table", Id);
             if (result)
                 return Ok("Time Table Successfully deleted");

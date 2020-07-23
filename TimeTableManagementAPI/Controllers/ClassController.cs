@@ -17,9 +17,14 @@ namespace TimeTableManagementAPI.Controllers
     {
         private ICommonRepository<Class> _classRepository;
         private DBContext _dBContext;
-        public ClassController(ICommonRepository<Class> classRepository)
+        private ICommonRepository<Time_Table> _timeTableRepo;
+        private ICommonRepository<Slot> _slotRepo;
+
+        public ClassController(ICommonRepository<Class> classRepository, ICommonRepository<Time_Table> timeTableRepo, ICommonRepository<Slot> slotRepo)
         {
             _classRepository = classRepository;
+            _timeTableRepo = timeTableRepo;
+            _slotRepo = slotRepo;
             _dBContext = new DBContext();
         }
 
@@ -60,8 +65,62 @@ namespace TimeTableManagementAPI.Controllers
                 _dBContext.MainConnection.Close();
                 return BadRequest();
             }
+            finally
+            {
+                _dBContext.MainConnection.Close();
+            }
 
         }
+
+        [HttpPut]
+        public IActionResult Upadte([FromBody]Class classData)
+        {
+            string UpdateQuery = "UPDATE Class SET Name=@Name,Grade=@Grade where Id=@Id";
+            try
+            {
+                SqlCommand updateCMD = new SqlCommand(UpdateQuery, _dBContext.MainConnection);
+                updateCMD.Parameters.AddWithValue("@Name", classData.Name);
+                updateCMD.Parameters.AddWithValue("@Grade", classData.Grade);
+
+                var result = updateCMD.ExecuteNonQuery();
+                updateCMD.Connection.Close();
+                if (result > 0)
+                    return Ok(classData);
+                else
+                    return BadRequest("Update Failed");
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return BadRequest("Update Failed");
+            }
+            finally
+            {
+                _dBContext.MainConnection.Close();
+            }
+        }
+
+        [HttpDelete]
+        public IActionResult DeleteClass(int Id)
+        {
+            var timeTable = _classRepository.GetById("Class", Id);
+            int timeTableId = timeTable.Id;
+
+            var allSLots = _slotRepo.GetByOneParameter("Slot", "Time_Table_Id", timeTableId.ToString());
+            foreach (var slot in allSLots)
+            {
+                _slotRepo.DeleteRecord("Slot", slot.Id);
+            };
+
+            _timeTableRepo.DeleteRecord("Time_Table", timeTableId);
+
+            var result = _classRepository.DeleteRecord("class", Id);
+            if (result)
+                return Ok("Class Successfully deleted");
+            else
+                return BadRequest("Record not deleted");
+        }
+
 
         [Route("GetClassesRelateToGrade/{grade}")]
         public IActionResult GetAllClassesOfAGrade(int grade)
@@ -73,5 +132,7 @@ namespace TimeTableManagementAPI.Controllers
             else
                 return BadRequest("No Classes found");
         }
+
+
     }
 }
