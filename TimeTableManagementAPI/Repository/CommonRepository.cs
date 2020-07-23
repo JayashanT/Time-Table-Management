@@ -34,6 +34,7 @@ namespace TimeTableManagementAPI.Repository
                     foreach(DataRow record in dt.Rows)
                     {
                         TEntity item = GetItem<TEntity>(record);
+
                         entities.Add(item);
                     }
                     

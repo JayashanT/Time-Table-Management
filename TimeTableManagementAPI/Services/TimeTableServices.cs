@@ -203,7 +203,7 @@ namespace TimeTableManagementAPI.Services
             }
 
 
-            string InsertCommand = "Update SET Day=@Day,Start_Time=@Start_Time,End_Time=@End_Time,Period_No=@Period_No,Time_Table_Id=@Time_Table_Id,Resource_Id=@Resource_Id,Teacher_Id=@Teacher_Id,Subject_Id=@Subject_Id WHERE Id=@Id";
+            string InsertCommand = "Update Slot SET Day=@Day,Start_Time=@Start_Time,End_Time=@End_Time,Period_No=@Period_No,Time_Table_Id=@Time_Table_Id,Resource_Id=@Resource_Id,Teacher_Id=@Teacher_Id,Subject_Id=@Subject_Id WHERE Id=@Id";
             try
             {
                 using (SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection))
