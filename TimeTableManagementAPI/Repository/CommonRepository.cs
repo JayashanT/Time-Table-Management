@@ -4,7 +4,6 @@ using Microsoft;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
-using TimeTableManagementAPI.Utility;
 using System.Data;
 
 namespace TimeTableManagementAPI.Repository

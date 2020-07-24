@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using TimeTableAPI.Models;
 using TimeTableManagementAPI.Models;
 using TimeTableManagementAPI.Repository;
-using TimeTableManagementAPI.Utility;
 
 namespace TimeTableManagementAPI.Controllers
 {
@@ -31,7 +30,6 @@ namespace TimeTableManagementAPI.Controllers
         public IActionResult GetAllSubjects()
         {
             var result = _subjectRepository.GetAll("Subject");
-            _dBContext.MainConnection.Close();
             if (result != null)
                 return Ok(result);
             else
@@ -42,7 +40,6 @@ namespace TimeTableManagementAPI.Controllers
         public IActionResult GetASubjectById(int Id)
         {
             var result = _subjectRepository.GetById("Subject", Id);
-            _dBContext.MainConnection.Close();
             if (result != null)
                 return Ok(result);
             else
@@ -53,7 +50,6 @@ namespace TimeTableManagementAPI.Controllers
         public IActionResult DeleteSubject(int Id)
         {
             var Result = _subjectRepository.DeleteRecord("Subject", Id);
-            _dBContext.MainConnection.Close();
             if (Result)
                 return Ok("Subject Deleted");
             else
@@ -69,7 +65,7 @@ namespace TimeTableManagementAPI.Controllers
                 try
                 {
                     Connection.Open();
-                    SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection);
+                    SqlCommand insertCommand = new SqlCommand(InsertCommand, Connection);
                     insertCommand.Parameters.AddWithValue("@Name", subject.Name);
                     insertCommand.Parameters.AddWithValue("@Medium", subject.Medium);
 
@@ -100,7 +96,7 @@ namespace TimeTableManagementAPI.Controllers
                 try
                 {
                     Connection.Open();
-                    SqlCommand updateCMD = new SqlCommand(InsertCommand, _dBContext.MainConnection);
+                    SqlCommand updateCMD = new SqlCommand(InsertCommand, Connection);
                     updateCMD.Parameters.AddWithValue("@Name", subject.Name);
                     updateCMD.Parameters.AddWithValue("@Medium", subject.Medium);
                     updateCMD.Parameters.AddWithValue("@Id", subject.Id);
@@ -134,7 +130,7 @@ namespace TimeTableManagementAPI.Controllers
                     Connection.Open();
                     DataTable dt = new DataTable();
                     string MyCommand = "Select u.Id,u.Name from users u INNER JOIN Teacher_Subject t on t.Teacher_Id=u.Id where t.Subject_Id=@Subject_Id";
-                    SqlCommand myCommand = new SqlCommand(MyCommand, _dBContext.MainConnection);
+                    SqlCommand myCommand = new SqlCommand(MyCommand, Connection);
                     myCommand.Parameters.AddWithValue("@Subject_Id", Id);
                     SqlDataAdapter da = new SqlDataAdapter(myCommand);
                     da.Fill(dt);
@@ -166,7 +162,6 @@ namespace TimeTableManagementAPI.Controllers
         public IActionResult GetAllSubjectsOfATeacher(int Id)
         {
             var result = _subjectTeacherRepository.GetByOneParameter("Teacher_Subject", "Teacher_Id", Convert.ToString(Id));
-            _dBContext.MainConnection.Close();
             if (result != null)
                 return Ok(result);
             else
@@ -183,7 +178,7 @@ namespace TimeTableManagementAPI.Controllers
                 try
                 {
                     Connection.Open();
-                    SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection);
+                    SqlCommand insertCommand = new SqlCommand(InsertCommand, Connection);
                     insertCommand.Parameters.AddWithValue("@Teacher_Id", teacher_Subject.Teacher_Id);
                     insertCommand.Parameters.AddWithValue("@Subject_Id", teacher_Subject.Subject_Id);
 
@@ -212,7 +207,6 @@ namespace TimeTableManagementAPI.Controllers
         public IActionResult RemoveAllocatedSubjectsFromTeachers(int Id)
         {
             var Result = _subjectTeacherRepository.DeleteRecord("Teacher_Subject",Id);
-            _dBContext.MainConnection.Close();
             if (Result)
                 return Ok("Subject Deleted");
             else

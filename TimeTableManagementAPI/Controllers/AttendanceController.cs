@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using TimeTableAPI.Models;
 using TimeTableManagementAPI.Models;
 using TimeTableManagementAPI.Repository;
-using TimeTableManagementAPI.Utility;
 
 namespace TimeTableManagementAPI.Controllers
 {

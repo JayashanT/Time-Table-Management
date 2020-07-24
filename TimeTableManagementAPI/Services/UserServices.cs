@@ -12,7 +12,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using TimeTableAPI.Models;
-using TimeTableManagementAPI.Utility;
+
 
 namespace TimeTableManagementAPI.Services
 {
@@ -180,7 +180,7 @@ namespace TimeTableManagementAPI.Services
                     }
                     else
                     {
-                        _dBContext.MainConnection.Close();
+                        Connection.Close();
                         return "Update Failed";
                     }
 
