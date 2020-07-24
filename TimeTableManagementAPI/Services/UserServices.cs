@@ -18,21 +18,22 @@ namespace TimeTableManagementAPI.Services
 {
     public class UserServices : IUserServices
     {
-        private DBContext _dBContext;
         private IConfiguration _config;
         private string key = "1234567890-abcde";
+        string ConnectionInformation = "Server=localhost;Database=TimeTableDB;Trusted_Connection=True;MultipleActiveResultSets=true";
 
         public UserServices(IConfiguration config)
         {
             _config = config;
-            _dBContext = new DBContext();
         }
 
         public object Add(Users user)
         {
+            SqlConnection Connection = new SqlConnection(ConnectionInformation);
+            Connection.Open();
             var password = Encrypt(user.Password, key);
             string checkStaffId = "Select Staff_Id from Users where Staff_Id=@Staff_Id";
-            SqlCommand StaffIdCommand = new SqlCommand(checkStaffId, _dBContext.MainConnection);
+            SqlCommand StaffIdCommand = new SqlCommand(checkStaffId,Connection);
             StaffIdCommand.Parameters.AddWithValue("@Staff_Id", user.Staff_Id);
 
             SqlDataReader reader = StaffIdCommand.ExecuteReader();
@@ -40,14 +41,13 @@ namespace TimeTableManagementAPI.Services
             if (reader.HasRows)
             {
                 reader.Close();
-                _dBContext.MainConnection.Close();
                 return "Staff Id already available";
             }
             reader.Close();
             string InsertCommand = "INSERT INTO Users (Name,Staff_Id,Contact_No,Password,Role_Id) output INSERTED.Id VALUES(@Name,@Staff_Id,@Contact_No,@Password,@Role_Id)";
             try
             {
-                SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection);
+                SqlCommand insertCommand = new SqlCommand(InsertCommand, Connection);
                 insertCommand.Parameters.AddWithValue("@Name", user.Name);
                 insertCommand.Parameters.AddWithValue("@Staff_Id", user.Staff_Id);
                 insertCommand.Parameters.AddWithValue("@Contact_No", user.Contact_No);
@@ -66,20 +66,21 @@ namespace TimeTableManagementAPI.Services
                         Role_Id=user.Role_Id
                     };
                     var tokenString = GenerateJSONWebToken(ReturnUser);
-                    _dBContext.MainConnection.Close();
                     return (new { token = tokenString });
                 }
                 else
                 {
-                    _dBContext.MainConnection.Close();
                     return "Someting Went wrong";
                 } 
             }
             catch (Exception e)
             {
-                _dBContext.MainConnection.Close();
                 Console.WriteLine(e.Message);
                 return "Someting Went wrong";
+            }
+            finally
+            {
+                Connection.Close();
             }
         }
 
@@ -150,43 +151,49 @@ namespace TimeTableManagementAPI.Services
 
         public object UpdateUser(Users user)
         {
-            string InsertCommand = "UPDATE Users SET Name=@Name,Staff_Id=@Staff_Id,Contact_No=@Contact_No,Password=@Password,Role_Id=@Role_Id WHERE Id=" + user.Id;
-            try
+            using(SqlConnection Connection=new SqlConnection(ConnectionInformation))
             {
-                SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection);
-                insertCommand.Parameters.AddWithValue("@Name", user.Name);
-                insertCommand.Parameters.AddWithValue("@Staff_Id", user.Staff_Id);
-                insertCommand.Parameters.AddWithValue("@Contact_No", user.Contact_No);
-                insertCommand.Parameters.AddWithValue("@Password", user.Password);
-                insertCommand.Parameters.AddWithValue("@Role_Id", user.Role_Id);
+                string InsertCommand = "UPDATE Users SET Name=@Name,Staff_Id=@Staff_Id,Contact_No=@Contact_No,Password=@Password,Role_Id=@Role_Id WHERE Id=" + user.Id;
+                try
+                {
+                    Connection.Open();
+                    SqlCommand insertCommand = new SqlCommand(InsertCommand, Connection);
+                    insertCommand.Parameters.AddWithValue("@Name", user.Name);
+                    insertCommand.Parameters.AddWithValue("@Staff_Id", user.Staff_Id);
+                    insertCommand.Parameters.AddWithValue("@Contact_No", user.Contact_No);
+                    insertCommand.Parameters.AddWithValue("@Password", user.Password);
+                    insertCommand.Parameters.AddWithValue("@Role_Id", user.Role_Id);
 
-                var result = insertCommand.ExecuteNonQuery();
-                _dBContext.MainConnection.Close();
-                if (result > 0)
-                {
-                    Users ReturnUser = new Users()
+                    var result = insertCommand.ExecuteNonQuery();
+                    if (result > 0)
                     {
-                        Id = user.Id,
-                        Name = user.Name,
-                        Staff_Id = user.Staff_Id,
-                        Contact_No = user.Contact_No,
-                        Role_Id = user.Role_Id
-                    };
-                    var tokenString = GenerateJSONWebToken(ReturnUser);
-                    return (new { token = tokenString });
+                        Users ReturnUser = new Users()
+                        {
+                            Id = user.Id,
+                            Name = user.Name,
+                            Staff_Id = user.Staff_Id,
+                            Contact_No = user.Contact_No,
+                            Role_Id = user.Role_Id
+                        };
+                        var tokenString = GenerateJSONWebToken(ReturnUser);
+                        return (new { token = tokenString });
+                    }
+                    else
+                    {
+                        _dBContext.MainConnection.Close();
+                        return "Update Failed";
+                    }
+
                 }
-                else
+                catch (Exception e)
                 {
-                    _dBContext.MainConnection.Close();
-                    return "Update Failed";
+                    Console.WriteLine(e.Message);
+                    return false;
                 }
-                    
-            }
-            catch (Exception e)
-            {
-                _dBContext.MainConnection.Close();
-                Console.WriteLine(e.Message);
-                return false;
+                finally
+                {
+                    Connection.Close();
+                }
             }
         }
         public string GenerateJSONWebToken(Users userInfo)
@@ -213,15 +220,15 @@ namespace TimeTableManagementAPI.Services
 
         public Users AuthenticateUser(Users login)
         {
-            Users user = new Users();
-
+            SqlConnection Connection = new SqlConnection(ConnectionInformation);
+            Connection.Open();
             string queryCommand = "Select * from Users where Staff_Id=@Staff_Id";
-            SqlCommand myCommand = new SqlCommand(queryCommand, _dBContext.MainConnection);
-
+            SqlCommand myCommand = new SqlCommand(queryCommand, Connection);
             myCommand.Parameters.AddWithValue("@Staff_Id", login.Staff_Id);
 
             SqlDataReader reader = myCommand.ExecuteReader();
- 
+
+            Users user = new Users();
 
             if (reader.HasRows)
             {
@@ -236,12 +243,12 @@ namespace TimeTableManagementAPI.Services
                     user.Contact_No = Convert.ToString(reader["Contact_No"]);
                     user.Role_Id = Convert.ToInt32(reader["Role_Id"]);
                     reader.Close();
-                    _dBContext.MainConnection.Close();
+                    Connection.Close();
                 }
                 else
                 {
                     reader.Close();
-                    _dBContext.MainConnection.Close();
+                    Connection.Close();
                     return null;
                 }
                 return user;
@@ -249,7 +256,7 @@ namespace TimeTableManagementAPI.Services
             else
             {
                 reader.Close();
-                _dBContext.MainConnection.Close();
+                Connection.Close();
                 return null;
             }
                 

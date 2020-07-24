@@ -16,21 +16,19 @@ namespace TimeTableManagementAPI.Controllers
     public class ClassController : Controller
     {
         private ICommonRepository<Class> _classRepository;
-        private DBContext _dBContext;
         private ICommonRepository<Time_Table> _timeTableRepo;
         private ICommonRepository<Slot> _slotRepo;
+        string ConnectionInformation = "Server=localhost;Database=TimeTableDB;Trusted_Connection=True;MultipleActiveResultSets=true";
 
         public ClassController(ICommonRepository<Class> classRepository, ICommonRepository<Time_Table> timeTableRepo, ICommonRepository<Slot> slotRepo)
         {
             _classRepository = classRepository;
             _timeTableRepo = timeTableRepo;
             _slotRepo = slotRepo;
-            _dBContext = new DBContext();
         }
 
         public IActionResult GetAllClasses()
         {
-            _dBContext.MainConnection.Close();
             var Result = _classRepository.GetAll("Class");
             return Ok(Result);
         }
@@ -45,96 +43,110 @@ namespace TimeTableManagementAPI.Controllers
         [HttpPost]
         public IActionResult Add([FromBody]Class classData)
         {
-            string InsertCommand = "INSERT INTO Class (Name,Grade) VALUES(@Name,@Grade)";
-            try
+            using (SqlConnection Connection =new SqlConnection(ConnectionInformation))
             {
-                SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection);
-                insertCommand.Parameters.AddWithValue("@Name", classData.Name);
-                insertCommand.Parameters.AddWithValue("@Grade", classData.Grade);
+                Connection.Open();
+                string InsertCommand = "INSERT INTO Class (Name,Grade) VALUES(@Name,@Grade)";
+                try
+                {
+                    SqlCommand insertCommand = new SqlCommand(InsertCommand, Connection);
+                    insertCommand.Parameters.AddWithValue("@Name", classData.Name);
+                    insertCommand.Parameters.AddWithValue("@Grade", classData.Grade);
 
-                var result = insertCommand.ExecuteNonQuery();
-                _dBContext.MainConnection.Close();
-                if (result > 0)
-                    return Ok();
-                else
+                    var result = insertCommand.ExecuteNonQuery();
+                    if (result > 0)
+                        return Ok();
+                    else
+                        return BadRequest();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
                     return BadRequest();
+                }
+                finally
+                {
+                    Connection.Close();
+                }
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                _dBContext.MainConnection.Close();
-                return BadRequest();
-            }
-            finally
-            {
-                _dBContext.MainConnection.Close();
-            }
+           
 
         }
 
         [HttpPut]
         public IActionResult Upadte([FromBody]Class classData)
         {
-            string UpdateQuery = "UPDATE Class SET Name=@Name,Grade=@Grade where Id=@Id";
-            try
+            using(SqlConnection Connection= new SqlConnection(ConnectionInformation))
             {
-                SqlCommand updateCMD = new SqlCommand(UpdateQuery, _dBContext.MainConnection);
-                updateCMD.Parameters.AddWithValue("@Id", classData.Id);
-                updateCMD.Parameters.AddWithValue("@Name", classData.Name);
-                updateCMD.Parameters.AddWithValue("@Grade", classData.Grade);
+                string UpdateQuery = "UPDATE Class SET Name=@Name,Grade=@Grade where Id=@Id";
+                try
+                {
+                    Connection.Open();
+                    SqlCommand updateCMD = new SqlCommand(UpdateQuery, Connection);
+                    updateCMD.Parameters.AddWithValue("@Id", classData.Id);
+                    updateCMD.Parameters.AddWithValue("@Name", classData.Name);
+                    updateCMD.Parameters.AddWithValue("@Grade", classData.Grade);
 
-                var result = updateCMD.ExecuteNonQuery();
-                updateCMD.Connection.Close();
-                if (result > 0)
-                    return Ok(classData);
-                else
+                    var result = updateCMD.ExecuteNonQuery();
+                    if (result > 0)
+                        return Ok(classData);
+                    else
+                        return BadRequest("Update Failed");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
                     return BadRequest("Update Failed");
-            }
-            catch(Exception e)
-            {
-                Console.WriteLine(e.Message);
-                return BadRequest("Update Failed");
-            }
-            finally
-            {
-                _dBContext.MainConnection.Close();
+                }
+                finally
+                {
+                    Connection.Close();
+                }
             }
         }
 
         [HttpDelete]
         public IActionResult DeleteClass(int Id)
         {
-            string query = "SELECT Id from Time_Table where Class_Id=@ClassId";
-            try
+            using(SqlConnection Connection= new SqlConnection(ConnectionInformation))
             {
-                SqlCommand querryCMD = new SqlCommand(query, _dBContext.MainConnection);
-                querryCMD.Parameters.AddWithValue("@CLassId", Id);
-
-                int TimeTableId = 0;
-                var reader = querryCMD.ExecuteReader();
-                if (reader.HasRows)
+                string query = "SELECT Id from Time_Table where Class_Id=@ClassId";
+                try
                 {
-                    reader.Read();
-                    TimeTableId = Convert.ToInt32(reader["Id"]);
+                    Connection.Open();
+                    SqlCommand querryCMD = new SqlCommand(query, Connection);
+                    querryCMD.Parameters.AddWithValue("@CLassId", Id);
+
+                    int TimeTableId = 0;
+                    var reader = querryCMD.ExecuteReader();
+                    if (reader.HasRows)
+                    {
+                        reader.Read();
+                        TimeTableId = Convert.ToInt32(reader["Id"]);
+                    }
+                    reader.Close();
+                    var allSLots = _slotRepo.GetByOneParameter("Slot", "Time_Table_Id", TimeTableId.ToString());
+                    foreach (var slot in allSLots)
+                    {
+                        _slotRepo.DeleteRecord("Slot", slot.Id);
+                    };
+
+                    _timeTableRepo.DeleteRecord("Time_Table", TimeTableId);
+
+                    var result = _classRepository.DeleteRecord("class", Id);
+                    if (result)
+                        return Ok("Class Successfully deleted");
+                    else
+                        return BadRequest("Record not deleted");
                 }
-
-            var allSLots = _slotRepo.GetByOneParameter("Slot", "Time_Table_Id", TimeTableId.ToString());
-            foreach (var slot in allSLots)
-            {
-                _slotRepo.DeleteRecord("Slot", slot.Id);
-            };
-
-            _timeTableRepo.DeleteRecord("Time_Table", TimeTableId);
-
-            var result = _classRepository.DeleteRecord("class", Id);
-            if (result)
-                return Ok("Class Successfully deleted");
-            else
-                return BadRequest("Record not deleted");
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
+                catch (Exception e)
+                {
+                    return BadRequest(e.Message);
+                }
+                finally
+                {
+                    Connection.Close();
+                }
             }
         }
 
@@ -142,7 +154,6 @@ namespace TimeTableManagementAPI.Controllers
         [Route("GetClassesRelateToGrade/{grade}")]
         public IActionResult GetAllClassesOfAGrade(int grade)
         {
-            _dBContext.MainConnection.Close();
             var Result = _classRepository.GetByOneParameter("Class", "Grade", Convert.ToString(grade));
             if (Result!=null)
                 return Ok(Result);
