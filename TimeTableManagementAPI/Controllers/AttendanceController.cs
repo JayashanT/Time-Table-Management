@@ -30,17 +30,21 @@ namespace TimeTableManagementAPI.Controllers
         public IActionResult SetAttendanceForADay()
         {
             var AllUsers = _userRepository.GetAll("Users");
-            
-            foreach(var user in AllUsers)
-            {
-                string SetAttendance = "INSERT INTO Attendance (Date, Status, User_id) VALUES(@Date,@Status,@User_Id)";
-                SqlCommand SetAttendanceCMD = new SqlCommand(SetAttendance, _dBContext.MainConnection);
-                SetAttendanceCMD.Parameters.AddWithValue("@Date", System.DateTime.Today);
-                SetAttendanceCMD.Parameters.AddWithValue("@Status", Convert.ToByte(false));
-                SetAttendanceCMD.Parameters.AddWithValue("@User_id", user.Id);
 
-                var Result = SetAttendanceCMD.ExecuteScalar();
-            };
+            using(SqlConnection Connection=new SqlConnection())
+            {
+                foreach (var user in AllUsers)
+                {
+                    string SetAttendance = "INSERT INTO Attendance (Date, Status, User_id) VALUES(@Date,@Status,@User_Id)";
+                    SqlCommand SetAttendanceCMD = new SqlCommand(SetAttendance, _dBContext.MainConnection);
+                    SetAttendanceCMD.Parameters.AddWithValue("@Date", System.DateTime.Today);
+                    SetAttendanceCMD.Parameters.AddWithValue("@Status", Convert.ToByte(false));
+                    SetAttendanceCMD.Parameters.AddWithValue("@User_id", user.Id);
+
+                    var Result = SetAttendanceCMD.ExecuteScalar();
+                };
+            }
+            
             _dBContext.MainConnection.Close();
             return Ok("All attendance set to false");
         }

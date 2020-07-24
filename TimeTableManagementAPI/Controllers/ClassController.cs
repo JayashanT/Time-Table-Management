@@ -104,22 +104,38 @@ namespace TimeTableManagementAPI.Controllers
         [HttpDelete]
         public IActionResult DeleteClass(int Id)
         {
-            var timeTable = _classRepository.GetById("Class", Id);
-            int timeTableId = timeTable.Id;
+            string query = "SELECT Id from Time_Table where Class_Id=@ClassId";
+            try
+            {
+                SqlCommand querryCMD = new SqlCommand(query, _dBContext.MainConnection);
+                querryCMD.Parameters.AddWithValue("@CLassId", Id);
 
-            var allSLots = _slotRepo.GetByOneParameter("Slot", "Time_Table_Id", timeTableId.ToString());
+                int TimeTableId = 0;
+                var reader = querryCMD.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    reader.Read();
+                    TimeTableId = Convert.ToInt32(reader["Id"]);
+                }
+
+            var allSLots = _slotRepo.GetByOneParameter("Slot", "Time_Table_Id", TimeTableId.ToString());
             foreach (var slot in allSLots)
             {
                 _slotRepo.DeleteRecord("Slot", slot.Id);
             };
 
-            _timeTableRepo.DeleteRecord("Time_Table", timeTableId);
+            _timeTableRepo.DeleteRecord("Time_Table", TimeTableId);
 
             var result = _classRepository.DeleteRecord("class", Id);
             if (result)
                 return Ok("Class Successfully deleted");
             else
                 return BadRequest("Record not deleted");
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
 
