@@ -79,6 +79,7 @@ namespace TimeTableManagementAPI.Controllers
             try
             {
                 SqlCommand updateCMD = new SqlCommand(UpdateQuery, _dBContext.MainConnection);
+                updateCMD.Parameters.AddWithValue("@Id", classData.Id);
                 updateCMD.Parameters.AddWithValue("@Name", classData.Name);
                 updateCMD.Parameters.AddWithValue("@Grade", classData.Grade);
 
