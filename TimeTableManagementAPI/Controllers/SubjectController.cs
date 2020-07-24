@@ -19,14 +19,13 @@ namespace TimeTableManagementAPI.Controllers
         private ICommonRepository<Subject> _subjectRepository;
         private ICommonRepository<Teacher_Subject> _subjectTeacherRepository;
         private ICommonRepository<Users> _userRepository;
-        private DBContext _dBContext;
+        string ConnectionInformation = "Server=localhost;Database=TimeTableDB;Trusted_Connection=True;MultipleActiveResultSets=true";
         public SubjectController(ICommonRepository<Subject> subjectRepository, ICommonRepository<Teacher_Subject> subjectTeacherRepository, 
             ICommonRepository<Users> userRepository)
         {
             _subjectRepository = subjectRepository;
             _subjectTeacherRepository = subjectTeacherRepository;
             _userRepository = userRepository;
-            _dBContext = new DBContext();
         }
 
         public IActionResult GetAllSubjects()
@@ -64,82 +63,102 @@ namespace TimeTableManagementAPI.Controllers
         [HttpPost]
         public IActionResult Add([FromBody]Subject subject)
         {
-            string InsertCommand = "INSERT INTO Subject (Name,Medium) VALUES(@Name,@Medium)";
-            try
+            using(SqlConnection Connection=new SqlConnection(ConnectionInformation))
             {
-                SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection);
-                insertCommand.Parameters.AddWithValue("@Name", subject.Name);
-                insertCommand.Parameters.AddWithValue("@Medium", subject.Medium);
+                string InsertCommand = "INSERT INTO Subject (Name,Medium) VALUES(@Name,@Medium)";
+                try
+                {
+                    Connection.Open();
+                    SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection);
+                    insertCommand.Parameters.AddWithValue("@Name", subject.Name);
+                    insertCommand.Parameters.AddWithValue("@Medium", subject.Medium);
 
-                var result = insertCommand.ExecuteNonQuery();
-                _dBContext.MainConnection.Close();
-                if (result > 0)
-                    return Ok();
-                else
+                    var result = insertCommand.ExecuteNonQuery();
+                    if (result > 0)
+                        return Ok();
+                    else
+                        return BadRequest();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
                     return BadRequest();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                return BadRequest();
+                }
+                finally
+                {
+                    Connection.Close();
+                }
             }
         }
 
         [HttpPut]
         public IActionResult UpdareSubject([FromBody]Subject subject)
         {
-            string InsertCommand = "Update Subject set Name=@Name,Medium=@Medium where Id=@Id";
-            try
+            using(SqlConnection Connection=new SqlConnection(ConnectionInformation))
             {
-                SqlCommand updateCMD = new SqlCommand(InsertCommand, _dBContext.MainConnection);
-                updateCMD.Parameters.AddWithValue("@Name", subject.Name);
-                updateCMD.Parameters.AddWithValue("@Medium", subject.Medium);
-                updateCMD.Parameters.AddWithValue("@Id",subject.Id);
+                string InsertCommand = "Update Subject set Name=@Name,Medium=@Medium where Id=@Id";
+                try
+                {
+                    Connection.Open();
+                    SqlCommand updateCMD = new SqlCommand(InsertCommand, _dBContext.MainConnection);
+                    updateCMD.Parameters.AddWithValue("@Name", subject.Name);
+                    updateCMD.Parameters.AddWithValue("@Medium", subject.Medium);
+                    updateCMD.Parameters.AddWithValue("@Id", subject.Id);
 
-                var result = updateCMD.ExecuteNonQuery();
-                _dBContext.MainConnection.Close();
-                if (result > 0)
-                    return Ok(subject);
-                else
-                    return BadRequest("Update failed");
+                    var result = updateCMD.ExecuteNonQuery();
+                    if (result > 0)
+                        return Ok(subject);
+                    else
+                        return BadRequest("Update failed");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    return BadRequest();
+                }
+                finally
+                {
+                    Connection.Close();
+                }
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                _dBContext.MainConnection.Close();
-                return BadRequest();
-            }
+            
         }
 
         [Route("GetAllTeachersForASubject/{id}")]
         public IActionResult GetAllTeachersForASubject(int Id)
         {
-            try
+            using(SqlConnection Connection=new SqlConnection(ConnectionInformation))
             {
-                DataTable dt = new DataTable();
-                string MyCommand = "Select u.Id,u.Name from users u INNER JOIN Teacher_Subject t on t.Teacher_Id=u.Id where t.Subject_Id=@Subject_Id";
-                SqlCommand myCommand = new SqlCommand(MyCommand, _dBContext.MainConnection);
-                myCommand.Parameters.AddWithValue("@Subject_Id",Id);
-                SqlDataAdapter da = new SqlDataAdapter(myCommand);
-                da.Fill(dt);
-
-                List<Users> entities = new List<Users>(dt.Rows.Count);
-                if (dt.Rows.Count > 0)
+                try
                 {
-                    foreach (DataRow record in dt.Rows)
+                    Connection.Open();
+                    DataTable dt = new DataTable();
+                    string MyCommand = "Select u.Id,u.Name from users u INNER JOIN Teacher_Subject t on t.Teacher_Id=u.Id where t.Subject_Id=@Subject_Id";
+                    SqlCommand myCommand = new SqlCommand(MyCommand, _dBContext.MainConnection);
+                    myCommand.Parameters.AddWithValue("@Subject_Id", Id);
+                    SqlDataAdapter da = new SqlDataAdapter(myCommand);
+                    da.Fill(dt);
+
+                    List<Users> entities = new List<Users>(dt.Rows.Count);
+                    if (dt.Rows.Count > 0)
                     {
-                        Users item = _userRepository.GetItem<Users>(record);
-                        entities.Add(item);
+                        foreach (DataRow record in dt.Rows)
+                        {
+                            Users item = _userRepository.GetItem<Users>(record);
+                            entities.Add(item);
+                        }
                     }
+                    return Ok(entities);
                 }
-                _dBContext.MainConnection.Close();
-                return Ok(entities);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                _dBContext.MainConnection.Close();
-                return null;
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    return null;
+                }
+                finally
+                {
+                    Connection.Close();
+                }
             }
     }
 
@@ -158,26 +177,33 @@ namespace TimeTableManagementAPI.Controllers
         [Route("teacher_subject")]
         public IActionResult AssignASubjectToATeacher([FromBody]Teacher_Subject teacher_Subject)
         {
-            string InsertCommand = "INSERT INTO Teacher_Subject (Teacher_Id,Subject_Id) VALUES(@Teacher_Id,@Subject_Id)";
-            try
+            using(SqlConnection Connection=new SqlConnection(ConnectionInformation))
             {
-                SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection);
-                insertCommand.Parameters.AddWithValue("@Teacher_Id", teacher_Subject.Teacher_Id);
-                insertCommand.Parameters.AddWithValue("@Subject_Id", teacher_Subject.Subject_Id);
+                string InsertCommand = "INSERT INTO Teacher_Subject (Teacher_Id,Subject_Id) VALUES(@Teacher_Id,@Subject_Id)";
+                try
+                {
+                    Connection.Open();
+                    SqlCommand insertCommand = new SqlCommand(InsertCommand, _dBContext.MainConnection);
+                    insertCommand.Parameters.AddWithValue("@Teacher_Id", teacher_Subject.Teacher_Id);
+                    insertCommand.Parameters.AddWithValue("@Subject_Id", teacher_Subject.Subject_Id);
 
-                var result = insertCommand.ExecuteNonQuery();
-                _dBContext.MainConnection.Close();
-                if (result > 0)
-                    return Ok();
-                else
+                    var result = insertCommand.ExecuteNonQuery();
+                    if (result > 0)
+                        return Ok();
+                    else
+                        return BadRequest();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
                     return BadRequest();
+                }
+                finally
+                {
+                    Connection.Close();
+                }
             }
-            catch (Exception e)
-            {
-                _dBContext.MainConnection.Close();
-                Console.WriteLine(e.Message);
-                return BadRequest();
-            }
+           
             
         }
 
