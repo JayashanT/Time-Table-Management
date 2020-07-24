@@ -12,19 +12,22 @@ namespace TimeTableManagementAPI.Repository
     public class CommonRepository<TEntity> : ICommonRepository<TEntity> where TEntity :class
     {
 
-        DBContext _dBContext;
+        //DBContext _dBContext;
+        string ConnectionInformation = "Server=localhost;Database=TimeTableDB;Trusted_Connection=True;MultipleActiveResultSets=true";
         public CommonRepository()
         {
-            _dBContext = new DBContext();
+            //_dBContext = new DBContext();
         }
 
         public IEnumerable<TEntity> GetAll(string table)
         {
+            SqlConnection Connection = new SqlConnection(ConnectionInformation);
             try
-             {
+            {
+                Connection.Open();
                 DataTable dt = new DataTable();
                 string MyCommand = "Select * from " + table;
-                SqlCommand myCommand = new SqlCommand(MyCommand, _dBContext.MainConnection);
+                SqlCommand myCommand = new SqlCommand(MyCommand, Connection);
                 SqlDataAdapter da = new SqlDataAdapter(myCommand);
                 da.Fill(dt);
 
@@ -39,7 +42,6 @@ namespace TimeTableManagementAPI.Repository
                     }
                     
                 }
-                myCommand.Connection.Close();
                 return entities;
             }
             catch(Exception e)
@@ -49,17 +51,19 @@ namespace TimeTableManagementAPI.Repository
             }
             finally
             {
-                _dBContext.MainConnection.Close();
+                Connection.Close();
             }
             
         }
 
         public TEntity GetById(string table,int Id)
         {
+            SqlConnection Connection = new SqlConnection(ConnectionInformation);
             try {
+                Connection.Open();
                 DataTable dt = new DataTable();
                 string MyCommand = "Select * from " + table + " where Id=" + Id;
-                SqlCommand myCommand = new SqlCommand(MyCommand, _dBContext.MainConnection);
+                SqlCommand myCommand = new SqlCommand(MyCommand, Connection);
                 SqlDataAdapter da = new SqlDataAdapter(myCommand);
                 da.Fill(dt);
 
@@ -70,10 +74,8 @@ namespace TimeTableManagementAPI.Repository
                 }
                 else
                 {
-                    myCommand.Connection.Close();
                     return null;
                 }
-                myCommand.Connection.Close();
                 return item;
 
 
@@ -85,17 +87,19 @@ namespace TimeTableManagementAPI.Repository
             }
             finally
             {
-                _dBContext.MainConnection.Close();
+                Connection.Close();
             }
         }
 
         public IEnumerable<TEntity> GetByOneParameter(string table, string Name, string value)
         {
+            SqlConnection Connection = new SqlConnection(ConnectionInformation);
             try
             {
+                Connection.Open();
                 DataTable dt = new DataTable();
                 string MyCommand = "Select * from " + table + " where "+Name+"=" + value;
-                SqlCommand myCommand = new SqlCommand(MyCommand, _dBContext.MainConnection);
+                SqlCommand myCommand = new SqlCommand(MyCommand, Connection);
                 SqlDataAdapter da = new SqlDataAdapter(myCommand);
                 da.Fill(dt);
 
@@ -108,7 +112,6 @@ namespace TimeTableManagementAPI.Repository
                         entities.Add(item);
                     }
                 }
-                myCommand.Connection.Close();
                 return entities;
             }
             catch (Exception e)
@@ -118,25 +121,25 @@ namespace TimeTableManagementAPI.Repository
             }
             finally
             {
-                _dBContext.MainConnection.Close();
+                Connection.Close();
             }
         }
 
         public bool DeleteRecord(string table,int Id)
         {
-            string MyCommand = "Delete from " + table + " where Id=" + Id;
-            SqlCommand myCommand = new SqlCommand(MyCommand, _dBContext.MainConnection);
+            SqlConnection Connection = new SqlConnection(ConnectionInformation);
             try
             {
+                Connection.Open();
+                string MyCommand = "Delete from " + table + " where Id=" + Id;
+                SqlCommand myCommand = new SqlCommand(MyCommand, Connection);
                 var Result=myCommand.ExecuteNonQuery();
                 if (Result != 0)
                 {
-                    myCommand.Connection.Close();
                     return true;
                 }
                 else
                 {
-                    myCommand.Connection.Close();
                     return false;
                 } 
             }
@@ -147,7 +150,7 @@ namespace TimeTableManagementAPI.Repository
             }
             finally
             {
-                _dBContext.MainConnection.Close();
+               Connection.Close();
             }
         }
 
