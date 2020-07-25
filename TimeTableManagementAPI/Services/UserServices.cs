@@ -12,7 +12,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using TimeTableAPI.Models;
-using TimeTableManagementAPI.Utility;
+
 
 namespace TimeTableManagementAPI.Services
 {
@@ -21,6 +21,7 @@ namespace TimeTableManagementAPI.Services
         private IConfiguration _config;
         private string key = "1234567890-abcde";
         string ConnectionInformation = "Server=localhost;Database=TimeTableDB;Trusted_Connection=True;MultipleActiveResultSets=true";
+        //string ConnectionInformation = "Server=DESKTOP-QUN35J5\\Bhashitha;Database=TimeTableManagement123;Trusted_Connection=True;MultipleActiveResultSets=true";
 
         public UserServices(IConfiguration config)
         {
@@ -180,7 +181,7 @@ namespace TimeTableManagementAPI.Services
                     }
                     else
                     {
-                        _dBContext.MainConnection.Close();
+                        Connection.Close();
                         return "Update Failed";
                     }
 

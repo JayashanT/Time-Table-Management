@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using TimeTableManagementAPI.Models;
 using TimeTableManagementAPI.Repository;
 using TimeTableManagementAPI.Services;
-using TimeTableManagementAPI.Utility;
 using TimeTableManagementAPI.VM;
 
 namespace TimeTableManagementAPI.Controllers

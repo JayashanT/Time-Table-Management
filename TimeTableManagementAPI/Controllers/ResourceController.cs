@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using TimeTableManagementAPI.Models;
 using TimeTableManagementAPI.Repository;
-using TimeTableManagementAPI.Utility;
 
 namespace TimeTableManagementAPI.Controllers
 {
@@ -15,6 +14,7 @@ namespace TimeTableManagementAPI.Controllers
     public class ResourceController : Controller
     {
         string ConnectionInformation = "Server=localhost;Database=TimeTableDB;Trusted_Connection=True;MultipleActiveResultSets=true";
+        //string ConnectionInformation = "Server=DESKTOP-QUN35J5\\Bhashitha;Database=TimeTableManagement123;Trusted_Connection=True;MultipleActiveResultSets=true";
         private ICommonRepository<Resource> _resourceRepo;
         public ResourceController(ICommonRepository<Resource> resourceRepo)
         {

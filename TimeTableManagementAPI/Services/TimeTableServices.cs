@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using TimeTableAPI.Models;
 using TimeTableManagementAPI.Models;
 using TimeTableManagementAPI.Repository;
-using TimeTableManagementAPI.Utility;
 using TimeTableManagementAPI.VM;
 
 namespace TimeTableManagementAPI.Services
@@ -18,6 +17,7 @@ namespace TimeTableManagementAPI.Services
         private ICommonRepository<Slot> _slotRepo;
         private ICommonRepository<Users> _userRepo;
         string ConnectionInformation = "Server=localhost;Database=TimeTableDB;Trusted_Connection=True;MultipleActiveResultSets=true";
+        //string ConnectionInformation = "Server=DESKTOP-QUN35J5\\Bhashitha;Database=TimeTableManagement123;Trusted_Connection=True;MultipleActiveResultSets=true";
         public TimeTableServices(ICommonRepository<Time_Table> timetableRepo, ICommonRepository<Slot> slotRepo, ICommonRepository<Users> userRepo)
         {
             _timetableRepo = timetableRepo;
