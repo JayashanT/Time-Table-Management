@@ -19,6 +19,7 @@ namespace TimeTableManagementAPI.Controllers
         private ICommonRepository<Teacher_Subject> _subjectTeacherRepository;
         private ICommonRepository<Users> _userRepository;
         string ConnectionInformation = "Server=localhost;Database=TimeTableDB;Trusted_Connection=True;MultipleActiveResultSets=true";
+        //string ConnectionInformation = "Server=DESKTOP-QUN35J5\\Bhashitha;Database=TimeTableManagement123;Trusted_Connection=True;MultipleActiveResultSets=true";
         public SubjectController(ICommonRepository<Subject> subjectRepository, ICommonRepository<Teacher_Subject> subjectTeacherRepository, 
             ICommonRepository<Users> userRepository)
         {

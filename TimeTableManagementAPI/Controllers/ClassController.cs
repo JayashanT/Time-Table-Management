@@ -18,6 +18,7 @@ namespace TimeTableManagementAPI.Controllers
         private ICommonRepository<Time_Table> _timeTableRepo;
         private ICommonRepository<Slot> _slotRepo;
         string ConnectionInformation = "Server=localhost;Database=TimeTableDB;Trusted_Connection=True;MultipleActiveResultSets=true";
+        //string ConnectionInformation = "Server=DESKTOP-QUN35J5\\Bhashitha;Database=TimeTableManagement123;Trusted_Connection=True;MultipleActiveResultSets=true";
 
         public ClassController(ICommonRepository<Class> classRepository, ICommonRepository<Time_Table> timeTableRepo, ICommonRepository<Slot> slotRepo)
         {

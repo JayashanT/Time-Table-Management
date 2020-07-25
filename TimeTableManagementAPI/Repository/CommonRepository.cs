@@ -13,6 +13,7 @@ namespace TimeTableManagementAPI.Repository
 
         //DBContext _dBContext;
         string ConnectionInformation = "Server=localhost;Database=TimeTableDB;Trusted_Connection=True;MultipleActiveResultSets=true";
+        //string ConnectionInformation = "Server=DESKTOP-QUN35J5\\Bhashitha;Database=TimeTableManagement123;Trusted_Connection=True;MultipleActiveResultSets=true";
         public CommonRepository()
         {
             //_dBContext = new DBContext();
