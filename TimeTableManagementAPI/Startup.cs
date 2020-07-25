@@ -38,6 +38,7 @@ namespace TimeTableManagementAPI
             services.AddSignalR();
 
             services.AddScoped<IUserServices, UserServices>();
+            services.AddScoped<IReliefServices, ReliefServices>();
             services.AddScoped<ITimeTableServices, TimeTableServices>();
             services.AddScoped<ICommonRepository<Users>, CommonRepository<Users>>();
             services.AddScoped<ICommonRepository<LoginVM>, CommonRepository<LoginVM>>();
