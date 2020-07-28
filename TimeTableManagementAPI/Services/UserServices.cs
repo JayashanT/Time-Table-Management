@@ -152,9 +152,9 @@ namespace TimeTableManagementAPI.Services
 
         public object UpdateUser(Users user)
         {
-            using(SqlConnection Connection=new SqlConnection(ConnectionInformation))
+            using (SqlConnection Connection=new SqlConnection(ConnectionInformation))
             {
-                string InsertCommand = "UPDATE Users SET Name=@Name,Staff_Id=@Staff_Id,Contact_No=@Contact_No,Password=@Password,Role_Id=@Role_Id WHERE Id=" + user.Id;
+                string InsertCommand = "UPDATE Users SET Name=@Name,Staff_Id=@Staff_Id,Contact_No=@Contact_No,Role_Id=@Role_Id WHERE Id=" + user.Id;
                 try
                 {
                     Connection.Open();
@@ -162,7 +162,6 @@ namespace TimeTableManagementAPI.Services
                     insertCommand.Parameters.AddWithValue("@Name", user.Name);
                     insertCommand.Parameters.AddWithValue("@Staff_Id", user.Staff_Id);
                     insertCommand.Parameters.AddWithValue("@Contact_No", user.Contact_No);
-                    insertCommand.Parameters.AddWithValue("@Password", user.Password);
                     insertCommand.Parameters.AddWithValue("@Role_Id", user.Role_Id);
 
                     var result = insertCommand.ExecuteNonQuery();
@@ -261,6 +260,32 @@ namespace TimeTableManagementAPI.Services
                 return null;
             }
                 
+        }
+
+        public bool ChangePassword(int Id, string Password)
+        {
+            var password = Encrypt(Password, key);
+            using (SqlConnection Connection= new SqlConnection(ConnectionInformation))
+            {
+                try
+                {
+                    string query = "UPDATE users SET Password=@Password Where Id=@Id";
+                    Connection.Open();
+                    SqlCommand queryCMD = new SqlCommand(query, Connection);
+                    queryCMD.Parameters.AddWithValue("@Id", Id);
+                    queryCMD.Parameters.AddWithValue("@Password", password);
+
+                    var Result = queryCMD.ExecuteNonQuery();
+                    if (Result > 0)
+                        return true;
+                    else
+                        return false;
+                }
+                catch(Exception e)
+                {
+                    return false;
+                }
+            }
         }
 
     }

@@ -10,5 +10,6 @@ namespace TimeTableManagementAPI.Services
         object UpdateUser(Users user);
         Users AuthenticateUser(Users login);
         string GenerateJSONWebToken(Users userInfo);
+        bool ChangePassword(int Id, string Password);
     }
 }
