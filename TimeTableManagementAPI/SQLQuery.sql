@@ -105,7 +105,7 @@ CREATE TABLE [Resource] (
 INSERT INTO Resource VALUES('Sience lab 1','Academic') 
 INSERT INTO Resource VALUES('Computer lab 1','Academic') 
 INSERT INTO Resource VALUES('BasketBall','Sport') 
-INSERT INTO Resource VALUES(0,'Default','Default') 
+INSERT INTO Resource VALUES('Default','Default') 
 
 SET IDENTITY_INSERT Resource ON
 GO

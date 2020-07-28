@@ -54,11 +54,22 @@ namespace TimeTableAPI.Controllers
         [HttpPut]
         public IActionResult Update([FromBody]Users user)
         {
-            var Result = _userServices.Add(user);
+            var Result = _userServices.UpdateUser(user);
             if (Result.GetType() == typeof(string))
                 return BadRequest(Result);
             else
                 return Ok(Result);
+        }
+
+        [HttpPost]
+        [Route("ChangePassword")]
+        public IActionResult ChangePassword([FromBody]Users user)
+        {
+            var Result = _userServices.ChangePassword(user.Id, user.Password);
+            if (Result)
+                return Ok("Password Changed Successfully");
+            else
+                return BadRequest("something went Wrong");
         }
 
         [HttpPost]
