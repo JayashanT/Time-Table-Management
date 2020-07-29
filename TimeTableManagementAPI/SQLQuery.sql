@@ -317,3 +317,12 @@ SELECT * FROM SLOT S INNER JOIN Subject SB ON S.Subject_Id=SB.Id WHERE s.Time_Ta
 
 SELECT S.*, sb.Name as Subject_Name,C.Name AS Class_Name from Slot S  INNER JOIN Time_Table T ON S.Time_Table_Id=T.Id INNER JOIN Subject sb ON S.Subject_Id=sb.Id 
 INNER JOIN Class C ON T.Class_Id=C.Id WHERE S.Teacher_Id=2
+
+SELECT distinct S.*,SB.Name as Subject_Name FROM SLOT S INNER JOIN ATTENDANCE A ON S.Teacher_Id=A.User_Id INNER JOIN Subject SB on SB.Id=S.Subject_Id
+WHERE A.Status=0 and a.DATE=CONVERT(date,GETDATE())
+
+SELECT DAY('2017/08/25')
+
+select * from updates
+
+SELECT * from Updates where Date= CONVERT(date, GETDATE())

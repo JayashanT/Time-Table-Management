@@ -30,6 +30,16 @@ namespace TimeTableManagementAPI.Controllers
                 return Ok(Result);
         }
 
+        [Route("GetAvailableTeachersForReleif")]
+        public IActionResult GetAvailableTeachersForReleif(string PeriodNo,int SubjectId)
+        {
+            var Result = _reliefServices.GetAllTeachersAvailableForSlotForASubject(PeriodNo, SubjectId);
+            if (Result.GetType() == typeof(string))
+                return BadRequest(Result);
+            else
+                return Ok(Result);
+        }
+
         [HttpPost]
         public IActionResult AddAReleifToTeacher(Updates updates)
         {

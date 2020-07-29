@@ -39,7 +39,7 @@ namespace TimeTableManagementAPI.Controllers
                     SqlCommand SetAttendanceCMD = new SqlCommand(SetAttendance, Connection);
                     SetAttendanceCMD.Parameters.AddWithValue("@Date", System.DateTime.Today);
                     SetAttendanceCMD.Parameters.AddWithValue("@Status", Convert.ToByte(false));
-                    SetAttendanceCMD.Parameters.AddWithValue("@User_id", user.Id);
+                    SetAttendanceCMD.Parameters.AddWithValue("@User_Id", user.Id);
 
                     var Result = SetAttendanceCMD.ExecuteScalar();
                 };
