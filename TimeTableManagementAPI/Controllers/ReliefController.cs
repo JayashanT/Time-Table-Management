@@ -41,7 +41,7 @@ namespace TimeTableManagementAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddAReleifToTeacher(Updates updates)
+        public IActionResult AddAReleifToTeacher([FromBody]Updates updates)
         {
             var Result = _reliefServices.AddAReliefUpdate(updates);
             if (Result.GetType() == typeof(string))
@@ -51,7 +51,7 @@ namespace TimeTableManagementAPI.Controllers
         }
 
         [HttpPut]
-        public IActionResult UpdateAReleifToTeacher(Updates updates)
+        public IActionResult UpdateAReleifToTeacher([FromBody]Updates updates)
         {
             var Result = _reliefServices.UpdateARelief(updates);
             if (Result.GetType() == typeof(string))
@@ -70,6 +70,24 @@ namespace TimeTableManagementAPI.Controllers
                 return BadRequest(Result);
         }
         
+        [Route("GetAllRelifAllacations")]
+        public IActionResult GetAllRelifAllacations()
+        {
+            var Result = _reliefServices.GetAllReliefRequests();
+            if (Result.GetType() == typeof(string))
+                return BadRequest(Result);
+            else
+                return Ok(Result);
+        }
 
+        [Route("GetAllRelifAllacationsByTeacher")]
+        public IActionResult GetAllRelifAllacations(int UserId)
+        {
+            var Result = _reliefServices.GetAllReleifAllocationsByTeacherId(UserId);
+            if (Result.GetType() == typeof(string))
+                return BadRequest(Result);
+            else
+                return Ok(Result);
+        }
     }
 }

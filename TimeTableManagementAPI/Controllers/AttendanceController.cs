@@ -32,19 +32,34 @@ namespace TimeTableManagementAPI.Controllers
 
             using(SqlConnection Connection=new SqlConnection(ConnectionInformation))
             {
-                Connection.Open();
-                foreach (var user in AllUsers)
+                try
                 {
-                    string SetAttendance = "INSERT INTO Attendance (Date, Status, User_id) VALUES(@Date,@Status,@User_Id)";
-                    SqlCommand SetAttendanceCMD = new SqlCommand(SetAttendance, Connection);
-                    SetAttendanceCMD.Parameters.AddWithValue("@Date", System.DateTime.Today);
-                    SetAttendanceCMD.Parameters.AddWithValue("@Status", Convert.ToByte(false));
-                    SetAttendanceCMD.Parameters.AddWithValue("@User_Id", user.Id);
+                    Connection.Open();
+                    string checkAttendance = "Select Id from Attendance where Date=CONVERT(date, GETDATE())";
+                    SqlCommand checkCMD = new SqlCommand(checkAttendance, Connection);
+                    var Reader = checkCMD.ExecuteReader();
+                    if (Reader.HasRows)
+                        return Ok("Already attendance set");
 
-                    var Result = SetAttendanceCMD.ExecuteScalar();
-                };
-                Connection.Close();
-                return Ok("All attendance set to false");
+                    foreach (var user in AllUsers)
+                    {
+                        string SetAttendance = "INSERT INTO Attendance (Date, Status, User_id) VALUES(@Date,@Status,@User_Id)";
+                        SqlCommand SetAttendanceCMD = new SqlCommand(SetAttendance, Connection);
+                        SetAttendanceCMD.Parameters.AddWithValue("@Date", System.DateTime.Today);
+                        SetAttendanceCMD.Parameters.AddWithValue("@Status", Convert.ToByte(false));
+                        SetAttendanceCMD.Parameters.AddWithValue("@User_Id", user.Id);
+
+                        var Result = SetAttendanceCMD.ExecuteScalar();
+                    };
+                    return Ok("All attendance set to false");
+                }catch(Exception e)
+                {
+                    return BadRequest(e.Message);
+                }
+                finally
+                {
+                    Connection.Close();
+                }
             }    
         }
 
@@ -58,21 +73,23 @@ namespace TimeTableManagementAPI.Controllers
                     Connection.Open();
                     string SetAttendance = "UPDATE Attendance SET Status=@Status WHERE User_id=@User_Id AND Date=@Date";
                     SqlCommand SetAttendanceCMD = new SqlCommand(SetAttendance,Connection);
-                    SetAttendanceCMD.Parameters.AddWithValue("@Date", attendance.Date);
-                    SetAttendanceCMD.Parameters.AddWithValue("@Status", attendance.Status);
+                    SetAttendanceCMD.Parameters.AddWithValue("@Date", DateTime.Today);
+                    SetAttendanceCMD.Parameters.AddWithValue("@Status", 1);
                     SetAttendanceCMD.Parameters.AddWithValue("@User_id", attendance.User_Id);
 
                     var Result = SetAttendanceCMD.ExecuteNonQuery();
-                    Connection.Close();
                     if (Result > 0)
-                        return Ok(attendance);
+                        return Ok("attendance Marked");
                     else
                         return BadRequest("Something went wrong");
                 }
                 catch (Exception e)
                 {
-                    Connection.Close();
                     return BadRequest("Something went wrong");
+                }
+                finally
+                {
+                    Connection.Close();
                 }
             }
                
@@ -82,29 +99,39 @@ namespace TimeTableManagementAPI.Controllers
         {
             using (SqlConnection Connection = new SqlConnection(ConnectionInformation))
             {
-                Connection.Open();
-                string attendQueryString = "select * from Attendance where Status=1 AND Date=@Date";
-                SqlCommand QueryCommand = new SqlCommand(attendQueryString, Connection);
-                QueryCommand.Parameters.AddWithValue("@Date", Date);
-
-                SqlDataReader reader = QueryCommand.ExecuteReader();
-
-                List<Attendance> attendances = new List<Attendance>();
-                while (reader.Read())
+                try
                 {
-                    Attendance attendance = new Attendance()
-                    {
-                        Id = Convert.ToInt32(reader["Id"]),
-                        User_Id = Convert.ToInt32(reader["User_Id"])
-                    };
-                    attendances.Add(attendance);
-                }
-                Connection.Close();
-                if (attendances.Any())
-                    return Ok(attendances);
-                else
-                    return BadRequest("Not Found any attendace");
+                    Connection.Open();
+                    string attendQueryString = "select * from Attendance where Status=1 AND Date=@Date";
+                    SqlCommand QueryCommand = new SqlCommand(attendQueryString, Connection);
+                    QueryCommand.Parameters.AddWithValue("@Date", Date);
 
+                    SqlDataReader reader = QueryCommand.ExecuteReader();
+
+                    List<Attendance> attendances = new List<Attendance>();
+                    while (reader.Read())
+                    {
+                        Attendance attendance = new Attendance()
+                        {
+                            Id = Convert.ToInt32(reader["Id"]),
+                            User_Id = Convert.ToInt32(reader["User_Id"])
+                        };
+                        attendances.Add(attendance);
+                    }
+                    Connection.Close();
+                    if (attendances.Any())
+                        return Ok(attendances);
+                    else
+                        return BadRequest("Not Found any attendace");
+                }
+                catch (Exception e)
+                {
+                    return BadRequest("Something went wrong");
+                }
+                finally
+                {
+                    Connection.Close();
+                }
             }
         }
     }
