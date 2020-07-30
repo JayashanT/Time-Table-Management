@@ -203,6 +203,8 @@ namespace TimeTableManagementAPI.Services
         {
             using (SqlConnection Connection = new SqlConnection(ConnectionInformation))
             {
+                try
+                {
                 Connection.Open();
                 string checkSlot = "select * from slot where Id=@Id";
                 SqlCommand checkSlotCommand = new SqlCommand(checkSlot, Connection);
@@ -212,15 +214,13 @@ namespace TimeTableManagementAPI.Services
 
                 if (!checkSlotReader.HasRows)
                 {
-                    checkSlotCommand.Connection.Close();
                     checkSlotReader.Close();
                     return "No Slot Available";
                 }
                 checkSlotReader.Close();
 
                 string InsertCommand = "Update Slot SET Day=@Day,Start_Time=@Start_Time,End_Time=@End_Time,Period_No=@Period_No,Time_Table_Id=@Time_Table_Id,Resource_Id=@Resource_Id,Teacher_Id=@Teacher_Id,Subject_Id=@Subject_Id WHERE Id=@Id";
-                try
-                {
+                
                     using (SqlCommand insertCommand = new SqlCommand(InsertCommand,Connection))
                     {
                         insertCommand.Parameters.AddWithValue("@Day", slot.Day);
@@ -259,96 +259,115 @@ namespace TimeTableManagementAPI.Services
         {
             using (SqlConnection Connection = new SqlConnection(ConnectionInformation))
             {
-                Connection.Open();
-                string AvailablityTeachers = "select distinct u.Id,u.Name,s.Period_No from users u left join slot s on u.Id = s.Teacher_Id " +
-               "left join Teacher_Subject t on u.Id = t.Teacher_Id WHERE t.Subject_Id = @Subject_Id ";
-                SqlCommand QueryCommand = new SqlCommand(AvailablityTeachers,Connection);
-                QueryCommand.Parameters.AddWithValue("@Subject_Id", SubjectId);
-
-                SqlDataReader reader = QueryCommand.ExecuteReader();
-                List<AvailableTeachers> entities = new List<AvailableTeachers>();
-                while (reader.Read())
+                try
                 {
-                    AvailableTeachers user = new AvailableTeachers()
-                    {
-                        Id = Convert.ToInt32(reader["Id"]),
-                        Name = Convert.ToString(reader["Name"]),
-                        Period_No = Convert.ToString(reader["Period_No"]),
-                    };
-                    entities.Add(user);
-                }
-                foreach (var entry in entities.ToList())
-                {
-                    if (entry.Period_No == PeriodNo)
-                    {
-                        foreach (var user in entities.ToList())
-                            if (user.Id == entry.Id)
-                                entities.Remove(user);
+                    Connection.Open();
+                    string AvailablityTeachers = "select distinct u.Id,u.Name,s.Period_No from users u left join slot s on u.Id = s.Teacher_Id " +
+                   "left join Teacher_Subject t on u.Id = t.Teacher_Id WHERE t.Subject_Id = @Subject_Id ";
+                    SqlCommand QueryCommand = new SqlCommand(AvailablityTeachers, Connection);
+                    QueryCommand.Parameters.AddWithValue("@Subject_Id", SubjectId);
 
+                    SqlDataReader reader = QueryCommand.ExecuteReader();
+                    List<AvailableTeachers> entities = new List<AvailableTeachers>();
+                    while (reader.Read())
+                    {
+                        AvailableTeachers user = new AvailableTeachers()
+                        {
+                            Id = Convert.ToInt32(reader["Id"]),
+                            Name = Convert.ToString(reader["Name"]),
+                            Period_No = Convert.ToString(reader["Period_No"]),
+                        };
+                        entities.Add(user);
                     }
+                    foreach (var entry in entities.ToList())
+                    {
+                        if (entry.Period_No == PeriodNo)
+                        {
+                            foreach (var user in entities.ToList())
+                                if (user.Id == entry.Id)
+                                    entities.Remove(user);
+
+                        }
+                    }
+                    var result = entities.GroupBy(X => X.Id).Select(x => x.First());
+                    reader.Close();
+                    if (!result.Any())
+                        return ("No Teachers available");
+                    else
+                        return result;
                 }
-                var result = entities.GroupBy(X => X.Id).Select(x => x.First());
-                reader.Close();
-                Connection.Close();
-                if (!result.Any())
-                    return ("No Teachers available");
-                else
-                    return result;
+                catch(Exception e)
+                {
+                    return e.Message;
+                }
+                finally
+                {
+                    Connection.Close();
+                }
             }
-               
+  
         }
 
         public Object GetTimeTableDetails(int Id)
         {
             using (SqlConnection Connection = new SqlConnection(ConnectionInformation))
             {
-                Connection.Open();
-                var TableDetails = _timetableRepo.GetById("Time_Table", Id);
-                if (TableDetails == null)
-                    return ("Time Table Not Found");
-                var AllSlotsOFATimeTable = _slotRepo.GetByOneParameter("Slot", "Time_Table_Id", Convert.ToString(Id));
-
-                string query = "SELECT distinct s.Id,s.Day,s.Period_No,s.Time_Table_Id,s.Resource_Id,s.Teacher_Id,u.Name AS Teacher_Name,s.Subject_Id,sb.Name AS Subject_Name" +
-                    " FROM Slot s INNER JOIN Subject sb ON s.Subject_Id=sb.Id INNER JOIN users u ON s.Teacher_Id=u.Id WHERE s.Time_Table_Id=@S_Id";
-                using (SqlCommand QueryCommand = new SqlCommand(query, Connection))
+                try
                 {
-                    QueryCommand.Parameters.AddWithValue("@S_Id", Id);
-                    SqlDataReader reader = QueryCommand.ExecuteReader();
-                    List<SlotVM> slotVMs = new List<SlotVM>().ToList();
-                    while (reader.Read())
+                    Connection.Open();
+                    var TableDetails = _timetableRepo.GetById("Time_Table", Id);
+                    if (TableDetails == null)
+                        return ("Time Table Not Found");
+                    var AllSlotsOFATimeTable = _slotRepo.GetByOneParameter("Slot", "Time_Table_Id", Convert.ToString(Id));
+
+                    string query = "SELECT distinct s.Id,s.Day,s.Period_No,s.Time_Table_Id,s.Resource_Id,s.Teacher_Id,u.Name AS Teacher_Name,s.Subject_Id,sb.Name AS Subject_Name" +
+                        " FROM Slot s INNER JOIN Subject sb ON s.Subject_Id=sb.Id INNER JOIN users u ON s.Teacher_Id=u.Id WHERE s.Time_Table_Id=@S_Id";
+                    using (SqlCommand QueryCommand = new SqlCommand(query, Connection))
                     {
-                        SlotVM slot = new SlotVM()
+                        QueryCommand.Parameters.AddWithValue("@S_Id", Id);
+                        SqlDataReader reader = QueryCommand.ExecuteReader();
+                        List<SlotVM> slotVMs = new List<SlotVM>().ToList();
+                        while (reader.Read())
                         {
-                            Id = Convert.ToInt32(reader["Id"]),
-                            Day = reader["Day"].ToString(),
-                            Period_No = reader["Period_No"].ToString(),
-                            Time_Table_Id = Convert.ToInt32(reader["Time_Table_Id"]),
-                            Teacher_Id = Convert.ToInt32(reader["Teacher_Id"]),
-                            Teacher_Name = reader["Teacher_Name"].ToString(),
-                            Subject_Id = Convert.ToInt32(reader["Subject_Id"]),
-                            Subject_Name = reader["Subject_Name"].ToString()
+                            SlotVM slot = new SlotVM()
+                            {
+                                Id = Convert.ToInt32(reader["Id"]),
+                                Day = reader["Day"].ToString(),
+                                Period_No = reader["Period_No"].ToString(),
+                                Time_Table_Id = Convert.ToInt32(reader["Time_Table_Id"]),
+                                Teacher_Id = Convert.ToInt32(reader["Teacher_Id"]),
+                                Teacher_Name = reader["Teacher_Name"].ToString(),
+                                Subject_Id = Convert.ToInt32(reader["Subject_Id"]),
+                                Subject_Name = reader["Subject_Name"].ToString()
+                            };
+                            if (reader["Resource_Id"] == DBNull.Value)
+                                slot.Resource_Id = 0;
+                            else
+                                slot.Resource_Id = Convert.ToInt32(reader["Resource_Id"]);
+
+                            slotVMs.Add(slot);
+                        }
+
+                        TableData td = new TableData()
+                        {
+                            Id = TableDetails.Id,
+                            Name = TableDetails.Name,
+                            Grade = TableDetails.Grade,
+                            Class_id = TableDetails.Class_Id,
+                            Admin_Id = TableDetails.Admin_Id,
+                            slot = slotVMs
+
                         };
-                        if (reader["Resource_Id"] == DBNull.Value)
-                            slot.Resource_Id = 0;
-                        else
-                            slot.Resource_Id = Convert.ToInt32(reader["Resource_Id"]);
-
-                        slotVMs.Add(slot);
+                        reader.Close();
+                        return td;
                     }
-
-                    TableData td = new TableData()
-                    {
-                        Id = TableDetails.Id,
-                        Name = TableDetails.Name,
-                        Grade = TableDetails.Grade,
-                        Class_id = TableDetails.Class_Id,
-                        Admin_Id = TableDetails.Admin_Id,
-                        slot = slotVMs
-
-                    };
-                    reader.Close();
+                }catch(Exception e)
+                {
+                    return e.Message;
+                }
+                finally
+                {
                     Connection.Close();
-                    return td;
                 }
             }
         }
@@ -357,79 +376,88 @@ namespace TimeTableManagementAPI.Services
         {
             using (SqlConnection Connection = new SqlConnection(ConnectionInformation))
             {
-                Connection.Open();
-                string TimeTableDetails = "select * from Time_Table where Class_Id=@ClassId ";
-                SqlCommand QueryCommand = new SqlCommand(TimeTableDetails,Connection);
-                QueryCommand.Parameters.AddWithValue("@ClassId", ClassId);
-
-                SqlDataReader reader = QueryCommand.ExecuteReader();
-                reader.Read();
-                if (!reader.HasRows)
+                try
                 {
-                    reader.Close();
-                    return ("Time Table Not Found");
-                }
+                    Connection.Open();
+                    string TimeTableDetails = "select * from Time_Table where Class_Id=@ClassId ";
+                    SqlCommand QueryCommand = new SqlCommand(TimeTableDetails, Connection);
+                    QueryCommand.Parameters.AddWithValue("@ClassId", ClassId);
 
-                Time_Table time_Table = new Time_Table()
-                {
-                    Id = Convert.ToInt32(reader["Id"]),
-                    Name = Convert.ToString(reader["Name"]),
-                    Grade = Convert.ToInt32(reader["Grade"]),
-                    Admin_Id = Convert.ToInt32(reader["Admin_Id"]),
-                    Class_Id = ClassId
-                };
-                reader.Close();
-
-                string checkSlot = "select Id from Time_Table where Class_Id=@Class_Id";
-                SqlCommand checkSlotCommand = new SqlCommand(checkSlot, Connection);
-                checkSlotCommand.Parameters.AddWithValue("@Class_Id", ClassId);
-
-                SqlDataReader checkSlotReader = checkSlotCommand.ExecuteReader();
-                checkSlotReader.Read();
-
-                string query = "SELECT distinct s.Id,s.Day,s.Period_No,s.Time_Table_Id,s.Resource_Id,s.Teacher_Id,u.Name AS Teacher_Name,s.Subject_Id,sb.Name AS Subject_Name" +
-                    " FROM Slot s INNER JOIN Subject sb ON s.Subject_Id=sb.Id INNER JOIN users u ON s.Teacher_Id=u.Id WHERE s.Time_Table_Id=@S_Id";
-                using (SqlCommand QueryCMD = new SqlCommand(query,Connection))
-                {
-                    QueryCMD.Parameters.AddWithValue("@S_Id", Convert.ToInt32(checkSlotReader["Id"]));
-                    checkSlotReader.Close();
-                    SqlDataReader sreader = QueryCMD.ExecuteReader();
-                    List<SlotVM> slotVMs = new List<SlotVM>().ToList();
-                    while (sreader.Read())
+                    SqlDataReader reader = QueryCommand.ExecuteReader();
+                    reader.Read();
+                    if (!reader.HasRows)
                     {
-                        SlotVM slot = new SlotVM()
-                        {
-                            Id = Convert.ToInt32(sreader["Id"]),
-                            Day = sreader["Day"].ToString(),
-                            Period_No = sreader["Period_No"].ToString(),
-                            Time_Table_Id = Convert.ToInt32(sreader["Time_Table_Id"]),
-                            Teacher_Id = Convert.ToInt32(sreader["Teacher_Id"]),
-                            Teacher_Name = sreader["Teacher_Name"].ToString(),
-                            Subject_Id = Convert.ToInt32(sreader["Subject_Id"]),
-                            Subject_Name = sreader["Subject_Name"].ToString()
-                        };
-                        if (sreader["Resource_Id"] == DBNull.Value)
-                            slot.Resource_Id = 0;
-                        else
-                            slot.Resource_Id = Convert.ToInt32(sreader["Resource_Id"]);
-
-                        slotVMs.Add(slot);
+                        reader.Close();
+                        return ("Time Table Not Found");
                     }
 
-                    TableData td = new TableData()
+                    Time_Table time_Table = new Time_Table()
                     {
-                        Id = time_Table.Id,
-                        Name = time_Table.Name,
-                        Grade = time_Table.Grade,
-                        Class_id = time_Table.Class_Id,
-                        Admin_Id = time_Table.Admin_Id,
-                        slot = slotVMs
-
+                        Id = Convert.ToInt32(reader["Id"]),
+                        Name = Convert.ToString(reader["Name"]),
+                        Grade = Convert.ToInt32(reader["Grade"]),
+                        Admin_Id = Convert.ToInt32(reader["Admin_Id"]),
+                        Class_Id = ClassId
                     };
-                    sreader.Close();
-                    Connection.Close();
-                    return td;
+                    reader.Close();
 
+                    string checkSlot = "select Id from Time_Table where Class_Id=@Class_Id";
+                    SqlCommand checkSlotCommand = new SqlCommand(checkSlot, Connection);
+                    checkSlotCommand.Parameters.AddWithValue("@Class_Id", ClassId);
+
+                    SqlDataReader checkSlotReader = checkSlotCommand.ExecuteReader();
+                    checkSlotReader.Read();
+
+                    string query = "SELECT distinct s.Id,s.Day,s.Period_No,s.Time_Table_Id,s.Resource_Id,s.Teacher_Id,u.Name AS Teacher_Name,s.Subject_Id,sb.Name AS Subject_Name" +
+                        " FROM Slot s INNER JOIN Subject sb ON s.Subject_Id=sb.Id INNER JOIN users u ON s.Teacher_Id=u.Id WHERE s.Time_Table_Id=@S_Id";
+                    using (SqlCommand QueryCMD = new SqlCommand(query, Connection))
+                    {
+                        QueryCMD.Parameters.AddWithValue("@S_Id", Convert.ToInt32(checkSlotReader["Id"]));
+                        checkSlotReader.Close();
+                        SqlDataReader sreader = QueryCMD.ExecuteReader();
+                        List<SlotVM> slotVMs = new List<SlotVM>().ToList();
+                        while (sreader.Read())
+                        {
+                            SlotVM slot = new SlotVM()
+                            {
+                                Id = Convert.ToInt32(sreader["Id"]),
+                                Day = sreader["Day"].ToString(),
+                                Period_No = sreader["Period_No"].ToString(),
+                                Time_Table_Id = Convert.ToInt32(sreader["Time_Table_Id"]),
+                                Teacher_Id = Convert.ToInt32(sreader["Teacher_Id"]),
+                                Teacher_Name = sreader["Teacher_Name"].ToString(),
+                                Subject_Id = Convert.ToInt32(sreader["Subject_Id"]),
+                                Subject_Name = sreader["Subject_Name"].ToString()
+                            };
+                            if (sreader["Resource_Id"] == DBNull.Value)
+                                slot.Resource_Id = 0;
+                            else
+                                slot.Resource_Id = Convert.ToInt32(sreader["Resource_Id"]);
+
+                            slotVMs.Add(slot);
+                        }
+
+                        TableData td = new TableData()
+                        {
+                            Id = time_Table.Id,
+                            Name = time_Table.Name,
+                            Grade = time_Table.Grade,
+                            Class_id = time_Table.Class_Id,
+                            Admin_Id = time_Table.Admin_Id,
+                            slot = slotVMs
+
+                        };
+                        sreader.Close();
+                        return td;
+
+                    }
+                }catch(Exception e)
+                {
+                    return e.Message;
+                }
+                finally
+                {
+                    Connection.Close();
                 }
             }
                

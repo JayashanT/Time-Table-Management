@@ -9,5 +9,7 @@ namespace TimeTableManagementAPI.Services
         object FindVanantSlotsInADay();
         object UpdateARelief(Updates update);
         object GetAllTeachersAvailableForSlotForASubject(string PeriodNo, int SubjectId);
+        object GetAllReliefRequests();
+        object GetAllReleifAllocationsByTeacherId(int userId);
     }
 }

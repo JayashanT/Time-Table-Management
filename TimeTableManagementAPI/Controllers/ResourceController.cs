@@ -114,28 +114,40 @@ namespace TimeTableManagementAPI.Controllers
         {
             using(SqlConnection Connection = new SqlConnection(ConnectionInformation))
             {
-                Connection.Open();
-                string AvailableResources = "SELECT distinct R.ID,R.NAME,R.Type FROM Resource R LEFT JOIN SLOT S ON R.ID=S.Resource_Id WHERE S.Period_No!=@Period_No";
-                SqlCommand QueryCommand = new SqlCommand(AvailableResources, Connection);
-                QueryCommand.Parameters.AddWithValue("@Period_No", periodNo);
-                SqlDataReader reader = QueryCommand.ExecuteReader();
-
-                List<Resource> resources = new List<Resource>();
-                while (reader.Read())
+                try
                 {
-                    Resource resource = new Resource()
+                    Connection.Open();
+                    string AvailableResources = "SELECT distinct R.ID,R.NAME,R.Type FROM Resource R LEFT JOIN SLOT S ON R.ID=S.Resource_Id WHERE S.Period_No!=@Period_No";
+                    SqlCommand QueryCommand = new SqlCommand(AvailableResources, Connection);
+                    QueryCommand.Parameters.AddWithValue("@Period_No", periodNo);
+                    SqlDataReader reader = QueryCommand.ExecuteReader();
+
+                    List<Resource> resources = new List<Resource>();
+                    while (reader.Read())
                     {
-                        Id = Convert.ToInt32(reader["Id"]),
-                        Name = Convert.ToString(reader["Name"]),
-                        Type = Convert.ToString(reader["Type"])
-                    };
-                    resources.Add(resource);
+                        Resource resource = new Resource()
+                        {
+                            Id = Convert.ToInt32(reader["Id"]),
+                            Name = Convert.ToString(reader["Name"]),
+                            Type = Convert.ToString(reader["Type"])
+                        };
+                        resources.Add(resource);
+                    }
+                    Connection.Close();
+                    if (!resources.Any())
+                        return Ok("No Resources Available");
+                    else
+                        return Ok(resources);
+
                 }
-                Connection.Close();
-                if (!resources.Any())
-                    return Ok("No Resources Available");
-                else
-                    return Ok(resources);
+                catch(Exception e)
+                {
+                    return BadRequest(e.Message);
+                }
+                finally
+                {
+                    Connection.Close();
+                }
             }
            
         }

@@ -30,58 +30,61 @@ namespace TimeTableManagementAPI.Services
 
         public object Add(Users user)
         {
-            SqlConnection Connection = new SqlConnection(ConnectionInformation);
-            Connection.Open();
-            var password = Encrypt(user.Password, key);
-            string checkStaffId = "Select Staff_Id from Users where Staff_Id=@Staff_Id";
-            SqlCommand StaffIdCommand = new SqlCommand(checkStaffId,Connection);
-            StaffIdCommand.Parameters.AddWithValue("@Staff_Id", user.Staff_Id);
-
-            SqlDataReader reader = StaffIdCommand.ExecuteReader();
-
-            if (reader.HasRows)
+            using (SqlConnection Connection = new SqlConnection(ConnectionInformation))
             {
-                reader.Close();
-                return "Staff Id already available";
-            }
-            reader.Close();
-            string InsertCommand = "INSERT INTO Users (Name,Staff_Id,Contact_No,Password,Role_Id) output INSERTED.Id VALUES(@Name,@Staff_Id,@Contact_No,@Password,@Role_Id)";
-            try
-            {
-                SqlCommand insertCommand = new SqlCommand(InsertCommand, Connection);
-                insertCommand.Parameters.AddWithValue("@Name", user.Name);
-                insertCommand.Parameters.AddWithValue("@Staff_Id", user.Staff_Id);
-                insertCommand.Parameters.AddWithValue("@Contact_No", user.Contact_No);
-                insertCommand.Parameters.AddWithValue("@Password", password);
-                insertCommand.Parameters.AddWithValue("@Role_Id", user.Role_Id);
-
-                int Id = (int)insertCommand.ExecuteScalar();
-                if (Id > 0)
+                try
                 {
-                    Users ReturnUser = new Users()
+                    Connection.Open();
+                    var password = Encrypt(user.Password, key);
+                    string checkStaffId = "Select Staff_Id from Users where Staff_Id=@Staff_Id";
+                    SqlCommand StaffIdCommand = new SqlCommand(checkStaffId, Connection);
+                    StaffIdCommand.Parameters.AddWithValue("@Staff_Id", user.Staff_Id);
+
+                    SqlDataReader reader = StaffIdCommand.ExecuteReader();
+
+                    if (reader.HasRows)
                     {
-                        Id=Id,
-                        Name=user.Name,
-                        Staff_Id=user.Staff_Id,
-                        Contact_No=user.Contact_No,
-                        Role_Id=user.Role_Id
-                    };
-                    var tokenString = GenerateJSONWebToken(ReturnUser);
-                    return (new { token = tokenString });
+                        reader.Close();
+                        return "Staff Id already available";
+                    }
+                    reader.Close();
+                    string InsertCommand = "INSERT INTO Users (Name,Staff_Id,Contact_No,Password,Role_Id) output INSERTED.Id VALUES(@Name,@Staff_Id,@Contact_No,@Password,@Role_Id)";
+                
+                        SqlCommand insertCommand = new SqlCommand(InsertCommand, Connection);
+                        insertCommand.Parameters.AddWithValue("@Name", user.Name);
+                        insertCommand.Parameters.AddWithValue("@Staff_Id", user.Staff_Id);
+                        insertCommand.Parameters.AddWithValue("@Contact_No", user.Contact_No);
+                        insertCommand.Parameters.AddWithValue("@Password", password);
+                        insertCommand.Parameters.AddWithValue("@Role_Id", user.Role_Id);
+
+                        int Id = (int)insertCommand.ExecuteScalar();
+                        if (Id > 0)
+                        {
+                            Users ReturnUser = new Users()
+                            {
+                                Id = Id,
+                                Name = user.Name,
+                                Staff_Id = user.Staff_Id,
+                                Contact_No = user.Contact_No,
+                                Role_Id = user.Role_Id
+                            };
+                            var tokenString = GenerateJSONWebToken(ReturnUser);
+                            return (new { token = tokenString });
+                        }
+                        else
+                        {
+                            return "Someting Went wrong";
+                        }
                 }
-                else
+                catch (Exception e)
                 {
+                    Console.WriteLine(e.Message);
                     return "Someting Went wrong";
-                } 
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                return "Someting Went wrong";
-            }
-            finally
-            {
-                Connection.Close();
+                }
+                finally
+                {
+                    Connection.Close();
+                }
             }
         }
 
@@ -220,45 +223,59 @@ namespace TimeTableManagementAPI.Services
 
         public Users AuthenticateUser(Users login)
         {
-            SqlConnection Connection = new SqlConnection(ConnectionInformation);
-            Connection.Open();
-            string queryCommand = "Select * from Users where Staff_Id=@Staff_Id";
-            SqlCommand myCommand = new SqlCommand(queryCommand, Connection);
-            myCommand.Parameters.AddWithValue("@Staff_Id", login.Staff_Id);
-
-            SqlDataReader reader = myCommand.ExecuteReader();
-
-            Users user = new Users();
-
-            if (reader.HasRows)
+            using (SqlConnection Connection = new SqlConnection(ConnectionInformation))
             {
-                reader.Read();
-                String Password = Decrypt(Convert.ToString(reader["Password"]), key);
-                Console.WriteLine(Password);
-                if (Password == login.Password)
+                try
                 {
-                    user.Id = Convert.ToInt32(reader["Id"]);
-                    user.Staff_Id = Convert.ToString(reader["Staff_Id"]);
-                    user.Name = Convert.ToString(reader["Name"]);
-                    user.Contact_No = Convert.ToString(reader["Contact_No"]);
-                    user.Role_Id = Convert.ToInt32(reader["Role_Id"]);
-                    reader.Close();
-                    Connection.Close();
+                    Connection.Open();
+                    string queryCommand = "Select * from Users where Staff_Id=@Staff_Id";
+                    SqlCommand myCommand = new SqlCommand(queryCommand, Connection);
+                    myCommand.Parameters.AddWithValue("@Staff_Id", login.Staff_Id);
+
+                    SqlDataReader reader = myCommand.ExecuteReader();
+
+                    Users user = new Users();
+
+                    if (reader.HasRows)
+                    {
+                        reader.Read();
+                        String Password = Decrypt(Convert.ToString(reader["Password"]), key);
+                        Console.WriteLine(Password);
+                        if (Password == login.Password)
+                        {
+                            user.Id = Convert.ToInt32(reader["Id"]);
+                            user.Staff_Id = Convert.ToString(reader["Staff_Id"]);
+                            user.Name = Convert.ToString(reader["Name"]);
+                            user.Contact_No = Convert.ToString(reader["Contact_No"]);
+                            user.Role_Id = Convert.ToInt32(reader["Role_Id"]);
+                            reader.Close();
+                            Connection.Close();
+                        }
+                        else
+                        {
+                            reader.Close();
+                            Connection.Close();
+                            return null;
+                        }
+                        return user;
+                    }
+                    else
+                    {
+                        reader.Close();
+                        Connection.Close();
+                        return null;
+                    }
                 }
-                else
+                catch(Exception e)
                 {
-                    reader.Close();
-                    Connection.Close();
                     return null;
                 }
-                return user;
+                finally
+                {
+                    Connection.Close();
+                }
             }
-            else
-            {
-                reader.Close();
-                Connection.Close();
-                return null;
-            }
+           
                 
         }
 
@@ -284,6 +301,10 @@ namespace TimeTableManagementAPI.Services
                 catch(Exception e)
                 {
                     return false;
+                }
+                finally
+                {
+                    Connection.Close();
                 }
             }
         }

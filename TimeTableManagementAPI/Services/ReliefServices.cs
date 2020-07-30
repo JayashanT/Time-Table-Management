@@ -63,7 +63,6 @@ namespace TimeTableManagementAPI.Services
                     }
 
                     SlotReader.Close();
-                    Connection.Close();
                     if (slots.Any())
                         return (slots);
                     else
@@ -72,6 +71,10 @@ namespace TimeTableManagementAPI.Services
                 catch(Exception e)
                 {
                     return e.Message;
+                }
+                finally
+                {
+                    Connection.Close();
                 }
                 
             }
@@ -82,45 +85,55 @@ namespace TimeTableManagementAPI.Services
         {
             using (SqlConnection Connection = new SqlConnection(ConnectionInformation))
             {
-                Connection.Open();
-                string AvailablityTeachers = "select distinct u.Id,u.Name,s.Period_No from users u left join slot s on u.Id = s.Teacher_Id " +
-               "left join Teacher_Subject t on u.Id = t.Teacher_Id INNER JOIN Attendance A ON s.Teacher_Id=A.User_Id " +
-               "WHERE t.Subject_Id = @Subject_Id AND A.DATE = CONVERT(date, GETDATE()) AND A.Status=1";
-
-                SqlCommand QueryCommand = new SqlCommand(AvailablityTeachers, Connection);
-                QueryCommand.Parameters.AddWithValue("@Subject_Id", SubjectId);
-
-                SqlDataReader reader = QueryCommand.ExecuteReader();
-                List<AvailableTeachers> entities = new List<AvailableTeachers>();
-                while (reader.Read())
+                try
                 {
-                    AvailableTeachers user = new AvailableTeachers()
-                    {
-                        Id = Convert.ToInt32(reader["Id"]),
-                        Name = Convert.ToString(reader["Name"]),
-                        Period_No = Convert.ToString(reader["Period_No"]),
-                    };
-                    entities.Add(user);
-                }
-                foreach (var entry in entities.ToList())
-                {
-                    if (entry.Period_No == PeriodNo)
-                    {
-                        foreach (var user in entities.ToList())
-                            if (user.Id == entry.Id)
-                                entities.Remove(user);
+                    Connection.Open();
+                    string AvailablityTeachers = "select distinct u.Id,u.Name,s.Period_No from users u left join slot s on u.Id = s.Teacher_Id " +
+                   "left join Teacher_Subject t on u.Id = t.Teacher_Id INNER JOIN Attendance A ON s.Teacher_Id=A.User_Id " +
+                   "WHERE t.Subject_Id = @Subject_Id AND A.DATE = CONVERT(date, GETDATE()) AND A.Status=1";
 
+                    SqlCommand QueryCommand = new SqlCommand(AvailablityTeachers, Connection);
+                    QueryCommand.Parameters.AddWithValue("@Subject_Id", SubjectId);
+
+                    SqlDataReader reader = QueryCommand.ExecuteReader();
+                    List<AvailableTeachers> entities = new List<AvailableTeachers>();
+                    while (reader.Read())
+                    {
+                        AvailableTeachers user = new AvailableTeachers()
+                        {
+                            Id = Convert.ToInt32(reader["Id"]),
+                            Name = Convert.ToString(reader["Name"]),
+                            Period_No = Convert.ToString(reader["Period_No"]),
+                        };
+                        entities.Add(user);
                     }
-                }
-                var result = entities.GroupBy(X => X.Id).Select(x => x.First());
-                reader.Close();
-                Connection.Close();
-                if (!result.Any())
-                    return ("No Teachers available");
-                else
-                    return result;
-            }
+                    foreach (var entry in entities.ToList())
+                    {
+                        if (entry.Period_No == PeriodNo)
+                        {
+                            foreach (var user in entities.ToList())
+                                if (user.Id == entry.Id)
+                                    entities.Remove(user);
 
+                        }
+                    }
+                    var result = entities.GroupBy(X => X.Id).Select(x => x.First());
+                    reader.Close();
+                    Connection.Close();
+                    if (!result.Any())
+                        return ("No Teachers available");
+                    else
+                        return result;
+                }
+                catch (Exception e)
+                {
+                    return e.Message.ToString();
+                }
+                finally
+                {
+                    Connection.Close();
+                }
+            }    
         }
 
         public object AddAReliefUpdate(Updates update)
@@ -222,8 +235,91 @@ namespace TimeTableManagementAPI.Services
                 {
                     Connection.Close();
                 }
+            }  
+        }
+
+        public object GetAllReliefRequests()
+        {
+            using(SqlConnection Connection = new SqlConnection(ConnectionInformation))
+            {
+                try
+                {
+                    string query = "SELECT * FROM updates Where Date=CONVERT(date, GETDATE())";
+                    SqlCommand command = new SqlCommand(query, Connection);
+
+                    var Reader = command.ExecuteReader();
+                    if (Reader.HasRows)
+                    {
+                        List<Updates> updates = new List<Updates>();
+                        while (Reader.Read())
+                        {
+                            Updates update = new Updates()
+                            {
+                                Id = Convert.ToInt32(Reader["Id"]),
+                                Status = Convert.ToByte(Reader["Status"]),
+                                Admin_Id = Convert.ToInt32(Reader["Admin_Id"]),
+                                Slot_Id = Convert.ToInt32(Reader["Slot_Id"]),
+                                Teacher_Id = Convert.ToInt32(Reader["Teacher_Id"]),
+                            };
+                        }
+                        Reader.Close();
+                        return updates;
+                    }
+                    else
+                        return "No Allocations for Today";
+                   
+                }
+                catch (Exception e)
+                {
+                    return e.Message.ToString();
+                }
+                finally
+                {
+                    Connection.Close();
+                }
             }
-            
+        }
+
+        public object GetAllReleifAllocationsByTeacherId(int userId)
+        {
+            using (SqlConnection Connection = new SqlConnection(ConnectionInformation))
+            {
+                try
+                {
+                    string query = "SELECT * FROM updates Where Date=CONVERT(date, GETDATE()) AND User_Id=@userId";
+                    SqlCommand command = new SqlCommand(query, Connection);
+                    command.Parameters.AddWithValue("@userId", userId);
+                    var Reader = command.ExecuteReader();
+                    if (Reader.HasRows)
+                    {
+                        List<Updates> updates = new List<Updates>();
+                        while (Reader.Read())
+                        {
+                            Updates update = new Updates()
+                            {
+                                Id = Convert.ToInt32(Reader["Id"]),
+                                Status = Convert.ToByte(Reader["Status"]),
+                                Admin_Id = Convert.ToInt32(Reader["Admin_Id"]),
+                                Slot_Id = Convert.ToInt32(Reader["Slot_Id"]),
+                                Teacher_Id = Convert.ToInt32(Reader["Teacher_Id"]),
+                            };
+                        }
+                        Reader.Close();
+                        return updates;
+                    }
+                    else
+                        return "No Allocations for Today";
+
+                }
+                catch (Exception e)
+                {
+                    return e.Message.ToString();
+                }
+                finally
+                {
+                    Connection.Close();
+                }
+            }
         }
     }
 }
